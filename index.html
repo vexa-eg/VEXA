@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -89,11 +90,11 @@ body.no-bgimg::before{display:none;}
 .dotsbtn{background:rgba(255,255,255,.12);border:none;color:#aaa;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;line-height:1;}
 .dotsbtn:hover{background:rgba(255,255,255,.2);color:#fff;}
 
-/* [FIX 1] MEDIA TAP BUTTON — يبان لزوار البروفايل عشان يضغطوا ويشوفوا الصورة/الفيديو */
+/* [FIX] MEDIA TAP BUTTON - بيبان في public view عشان حد يضغط ويشوف الصورة/الفيديو */
 .media-tap-btn{width:100%;min-height:80px;background:rgba(255,255,255,.04);border:none;border-radius:0;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:20px 16px;color:#555;font-size:.88rem;font-weight:600;font-family:'Inter',sans-serif;transition:background .15s,color .15s;}
 .media-tap-btn:hover,.media-tap-btn:active{background:rgba(255,255,255,.08);color:#999;}
 
-/* [FIX 2] VIDEO SIZE INFO — تحذير حجم الفيديو في المودال */
+/* [FIX] VIDEO SIZE WARNING في المودال */
 .vid-size-info{font-size:.72rem;color:#666;text-align:center;margin-top:4px;padding:6px 10px;background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.12);border-radius:8px;}
 
 /* CTX MENU */
@@ -120,18 +121,35 @@ body.no-bgimg::before{display:none;}
 .loc-live-dot{width:8px;height:8px;border-radius:50%;background:#f44;animation:livepulse 1.4s infinite;flex-shrink:0;display:inline-block;}
 @keyframes livepulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.7);}}
 
-/* VEXA BRAND */
-@keyframes vexabounce{
-  0%  {transform:translate(0px,0px) scale(1);}
-  20% {transform:translate(-4px,-7px) scale(1.03) rotate(-0.8deg);}
-  40% {transform:translate(5px,-5px) scale(1.02) rotate(0.6deg);}
-  60% {transform:translate(3px,4px) scale(0.98) rotate(0.4deg);}
-  80% {transform:translate(-3px,2px) scale(1.01) rotate(-0.4deg);}
-  100%{transform:translate(0px,0px) scale(1);}
+/* VEXA BRAND BUTTON */
+@keyframes vexabounce {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  20%  { transform: translate(-4px, -7px) scale(1.03) rotate(-0.8deg); }
+  40%  { transform: translate(5px, -5px) scale(1.02) rotate(0.6deg); }
+  60%  { transform: translate(3px, 4px) scale(0.98) rotate(0.4deg); }
+  80%  { transform: translate(-3px, 2px) scale(1.01) rotate(-0.4deg); }
+  100% { transform: translate(0px, 0px) scale(1); }
 }
-.vbrand{display:inline-flex;align-items:center;justify-content:center;margin-top:34px;padding:9px 30px;background:#fff;border-radius:10px;text-decoration:none;box-shadow:4px 4px 0 rgba(255,255,255,.15),6px 6px 20px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.4);animation:vexabounce 3s cubic-bezier(0.45,0.05,0.55,0.95) infinite;will-change:transform;}
-.vbrand:hover{animation:none;transform:translateY(-3px) scale(1.06);box-shadow:4px 6px 0 rgba(255,255,255,.2),6px 10px 28px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.9);transition:transform .15s,box-shadow .15s;}
-.vbrand:active{animation:none;transform:translate(2px,2px) scale(0.97);transition:transform .08s,box-shadow .08s;}
+.vbrand{
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-top:34px;padding:9px 30px;
+  background:#fff;border-radius:10px;text-decoration:none;
+  box-shadow:4px 4px 0 rgba(255,255,255,.15),6px 6px 20px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.9);
+  border:1px solid rgba(255,255,255,.4);
+  animation: vexabounce 3s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+  will-change: transform;
+}
+.vbrand:hover{
+  animation: none;
+  transform: translateY(-3px) scale(1.06);
+  box-shadow:4px 6px 0 rgba(255,255,255,.2),6px 10px 28px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.9);
+  transition: transform .15s, box-shadow .15s;
+}
+.vbrand:active{
+  animation: none;
+  transform: translate(2px,2px) scale(0.97);
+  transition: transform .08s, box-shadow .08s;
+}
 .vbrandtxt{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:6px;color:#000;line-height:1;}
 
 /* NAV */
@@ -281,6 +299,7 @@ body.no-bgimg::before{display:none;}
 </head>
 <body class="no-bgimg">
 
+<!-- تقليل وقت الانتظار من 800ms إلى 150ms -->
 <script>
 (function(){
   if(!new URLSearchParams(location.search).get('id')){
@@ -361,7 +380,7 @@ body.no-bgimg::before{display:none;}
     </div>
     <input type="hidden" id="sloc-lat">
     <input type="hidden" id="sloc-lng">
-    <p style="font-size:.7rem;color:#333;text-align:center;margin-top:4px;">Open Google Maps &#8594; tap Share &#8594; copy the link &#8594; paste above</p>
+    <p style="font-size:.7rem;color:#333;text-align:center;margin-top:4px;">Open Google Maps → tap Share → copy the link → paste above</p>
     <button class="abtn msbtn" onclick="confirmStaticLoc()">Use This Location</button>
     <button class="mcan" onclick="closeStaticLocModal()">Cancel</button>
   </div>
@@ -515,8 +534,8 @@ body.no-bgimg::before{display:none;}
     <!-- VIDEO TAB -->
     <div id="tp-video" class="hidden">
       <input type="text" id="vid-title" class="mi" placeholder="Button label (e.g. Promo Video, Reel&#8230;)">
-      <!-- [FIX] تحذير حجم الفيديو واضح -->
-      <div class="vid-size-info">&#9888;&#65039; Max video size: <strong>8 MB</strong> — Videos bigger than this won't save</div>
+      <!-- [FIX] تحذير حجم الفيديو -->
+      <div class="vid-size-info">&#9888;&#65039; Max video size: <strong>5 MB</strong> — Larger videos won&#39;t save to Firebase</div>
       <div class="upbox" id="vidbox" onclick="triggerUpload('vidinput')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Select video
       </div>
@@ -626,22 +645,21 @@ firebase.initializeApp({
 });
 const _auth=firebase.auth(),_db=firebase.database();
 
-/* [FIX] حدود الحجم */
-const FB_MAX_BYTES = 9 * 1024 * 1024; // 9MB — الحد الأقصى للـ Firebase node
-const VID_MAX_MB   = 8;                // 8MB — الحد الأقصى للفيديو قبل تحويله لـ base64
+/* [FIX] حد أقصى للحجم — Firebase يرفض أي node أكبر من 10MB */
+const _MAX_BYTES = 8 * 1024 * 1024; /* 8MB */
+const _MAX_VID_BYTES = 5 * 1024 * 1024; /* 5MB للفيديو قبل التحويل لـ base64 */
 
 window._fbSignUp=(e,p)=>_auth.createUserWithEmailAndPassword(e,p);
 window._fbLogin=(e,p)=>_auth.signInWithEmailAndPassword(e,p);
 window._fbSignOut=()=>_auth.signOut();
 
-/* [FIX] _fbSave — بيتحقق من الحجم قبل الحفظ ويعمل catch للأخطاء */
+/* [FIX] _fbSave — بيتحقق من الحجم ويعمل catch صريح */
 window._fbSave=async(uid,state)=>{
   function strip(links){return(links||[]).map(l=>{const c={...l};delete c._unlocked;if(c.items)c.items=strip(c.items);return c;});}
   const s={...JSON.parse(JSON.stringify(state)),links:strip(state.links)};
-  /* تحقق من الحجم */
   const sz=new Blob([JSON.stringify(s)]).size;
-  if(sz>FB_MAX_BYTES){
-    toast('Profile too large ('+Math.round(sz/1024/1024*10)/10+'MB). Remove a large image or video.','e');
+  if(sz>_MAX_BYTES){
+    toast('Profile too large ('+Math.round(sz/1024/1024*10)/10+'MB). Remove a large video or image.','e');
     return;
   }
   return Promise.all([
@@ -649,13 +667,12 @@ window._fbSave=async(uid,state)=>{
     _db.ref('pub/'+s.publicId).set(s)
   ]).catch(e=>{
     console.warn('Firebase save error:',e);
-    toast('Save failed – check connection','e');
+    toast('Save failed \u2014 check connection','e');
   });
 };
 
 window._fbLoad=async uid=>{const s=await _db.ref('users/'+uid).once('value');return s.exists()?s.val():null;};
 window._fbLoadPub=async pid=>{const s=await _db.ref('pub/'+pid).once('value');return s.exists()?s.val():null;};
-
 window._fbRecordVisit=async pid=>{
   const today=new Date().toISOString().slice(0,10).replace(/-/g,'');
   const tr=_db.ref('analytics/'+pid+'/visits/total'),dr=_db.ref('analytics/'+pid+'/visits/'+today);
@@ -670,22 +687,14 @@ window._fbRecordClick=async(pid,title)=>{
 window._fbLoadAnalytics=async pid=>{const s=await _db.ref('analytics/'+pid).once('value');return s.exists()?s.val():null;};
 window._fbResetAnalytics=async pid=>{await _db.ref('analytics/'+pid).set(null);};
 
-/* Auth state listener */
 _auth.onAuthStateChanged(async user=>{
   clearTimeout(window._authTimer);
   const pid=new URLSearchParams(location.search).get('id');
   if(pid){
     if(window._pubDataReady){return;} /* eager fetch عمل bootApp بالفعل */
     const data=await window._fbLoadPub(pid);
-    if(data){
-      window.S=data;if(!window.S.links)window.S.links=[];
-      window._pub=true;window._edit=false;
-      try{localStorage.setItem('vexa_pub_'+pid,JSON.stringify(data));}catch(_){}
-      bootApp();window._fbRecordVisit(pid).catch(()=>{});
-    }else{
-      hideLs();
-      document.body.innerHTML='<div style="height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#000;gap:14px;font-family:Inter,sans-serif;"><div style="font-family:Bebas Neue,sans-serif;font-size:3.5rem;letter-spacing:8px;background:linear-gradient(180deg,#fff,#888);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">VEXA</div><p style="color:#444;font-size:.9rem;">Profile not found</p></div>';
-    }
+    if(data){window.S=data;if(!window.S.links)window.S.links=[];window._pub=true;window._edit=false;bootApp();window._fbRecordVisit(pid).catch(()=>{});}
+    else{hideLs();document.body.innerHTML='<div style="height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#000;gap:14px;font-family:Inter,sans-serif;"><div style="font-family:Bebas Neue,sans-serif;font-size:3.5rem;letter-spacing:8px;background:linear-gradient(180deg,#fff,#888);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">VEXA</div><p style="color:#444;font-size:.9rem;">Profile not found</p></div>';}
     return;
   }
   if(user){
@@ -696,39 +705,19 @@ _auth.onAuthStateChanged(async user=>{
   }else{hideLs();document.getElementById('auth').classList.remove('hidden');}
 });
 
-/* [FIX] Eager fetch للبروفايلات العامة مع localStorage cache للفتح الفوري */
+/* ─── Eager fetch للبروفايل العام — بيشتغل بدون ما ننتظر Firebase Auth ─── */
 (async()=>{
   const pid=new URLSearchParams(location.search).get('id');
   if(!pid)return;
-
-  /* 1) اعرض الكاش فوراً لو موجود (فتح فوري) */
-  try{
-    const cached=localStorage.getItem('vexa_pub_'+pid);
-    if(cached){
-      const data=JSON.parse(cached);
-      if(!data.links)data.links=[];
-      window.S=data;window._pub=true;window._edit=false;window._pubDataReady=true;
-      bootApp(); /* instant render */
-    }
-  }catch(_){}
-
-  /* 2) حمّل من Firebase في الخلفية وحدّث */
   try{
     const data=await window._fbLoadPub(pid);
     if(data){
-      if(!data.links)data.links=[];
-      try{localStorage.setItem('vexa_pub_'+pid,JSON.stringify(data));}catch(_){}
-      if(!window._pubDataReady){
-        /* أول زيارة — مفيش كاش */
-        window.S=data;window._pub=true;window._edit=false;window._pubDataReady=true;
-        bootApp();
-      }else{
-        /* كاش اتعرض بالفعل — حدّث الداتا بصمت */
-        window.S=data;
-        render();
-      }
+      window.S=data;if(!window.S.links)window.S.links=[];
+      window._pub=true;window._edit=false;
+      window._pubDataReady=true;
+      bootApp();
       window._fbRecordVisit(pid).catch(()=>{});
-    }else if(!window._pubDataReady){
+    }else{
       hideLs();
       document.body.innerHTML='<div style="height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#000;gap:14px;font-family:Inter,sans-serif;"><div style="font-family:Bebas Neue,sans-serif;font-size:3.5rem;letter-spacing:8px;background:linear-gradient(180deg,#fff,#888);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">VEXA</div><p style="color:#444;font-size:.9rem;">Profile not found</p></div>';
     }
@@ -775,6 +764,10 @@ window.bootApp=function(){
     nm.onblur=()=>{S.name=nm.innerText.trim();save();};
     bio.onblur=()=>{S.bio=bio.innerText.trim();save();};
     bio.setAttribute('data-ph','Bio');
+    if(!window.S){
+      const uid=firebase.auth().currentUser?.uid||'new';
+      window.S={name:'',bio:'',avatar:'',links:[],colors:{},publicId:uid.slice(0,14)};
+    }
   }else{
     document.querySelectorAll('.edit-only').forEach(e=>e.classList.add('hidden'));
     document.getElementById('avwrap').style.cursor='default';
@@ -799,17 +792,19 @@ window.doAuth=async function(){
     if(isSignUp){
       const cred=await window._fbSignUp(email,pass);
       window._uid=cred.user.uid;
-      window.S={publicId:cred.user.uid.slice(0,14),name:email.split('@')[0],bio:'',avatar:'',bgImage:'',bgBlur:0,colors:{bg:'#0a0a0a',card:'#1a1a1a',name:'#ffffff',bio:'#a0a0a0',link:'#ffffff'},links:[]};
-      await window._fbSave(window._uid,window.S);
+      window.S={name:'',bio:'',avatar:'',links:[],colors:{},publicId:cred.user.uid.slice(0,14)};
       window._pub=false;window._edit=true;bootApp();
-    }else{await window._fbLogin(email,pass);}
+    }else{
+      await window._fbLogin(email,pass);
+    }
   }catch(e){
     btn.disabled=false;btn.innerText='Continue';
     const c=e.code||'';
-    if(c==='auth/email-already-in-use')toast('Email already registered!','e');
-    else if(c.includes('wrong-password')||c.includes('invalid-credential')||c.includes('invalid-login')){if(navigator.vibrate)navigator.vibrate([100,50,100]);const b=document.getElementById('abox');b.classList.add('error-shake','error-flash');setTimeout(()=>b.classList.remove('error-shake'),500);setTimeout(()=>b.classList.remove('error-flash'),800);document.getElementById('perr').style.display='block';}
-    else if(c.includes('user-not-found'))toast('No account found \u2014 Sign Up','e');
-    else toast(e.message||'Error','e');
+    const box=document.getElementById('abox');box.classList.add('error-shake','error-flash');setTimeout(()=>box.classList.remove('error-shake','error-flash'),500);
+    document.getElementById('perr').style.display='block';
+    if(c.includes('wrong-password')||c.includes('invalid-credential'))document.getElementById('perr').innerText='Wrong password';
+    else if(c.includes('user-not-found'))document.getElementById('perr').innerText='No account found \u2014 Sign Up';
+    else document.getElementById('perr').innerText=e.message||'Error';
   }
 };
 window.doLogout=async()=>{stopLiveLocation();await _auth.signOut();location.reload();};
@@ -839,12 +834,8 @@ function render(){
   renderLinks();
 }
 
-/* ===== BUILD ITEM =====
- * [FIX] أضفنا grpColors parameter — بيطبّق ألوان الجروب على اللينكات جوّاه
- * [FIX] في public view: الصور والفيديوهات بتبان كزرار "اضغط للعرض"
- *       عشان الصفحة تفتح بسرعة والصور تتحمّل بس لما حد يطلبها
- */
-function buildItem(l,gi,ii,grpColors){
+/* ===== BUILD ITEM ===== */
+function buildItem(l,gi,ii){
   const editBtn=window._edit?`<div class="item-actions"><button class="dotsbtn" onclick="openCtx(event,${gi},${ii})">&#8942;</button></div>`:'';
   const locked=l.password&&!l._unlocked;
   const lockBadge=l.password?`<div class="lock-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Protected</div>`:'';
@@ -854,10 +845,10 @@ function buildItem(l,gi,ii,grpColors){
     if(locked){
       return `<div style="position:relative;"><div class="lcard gc" style="cursor:pointer;" onclick="onPwItem(${gi},${ii},'image')">&#128274; ${escHtml(l.title||'Protected Image')}</div>${editBtn}</div>`;
     }
-    /* في public view: زرار "اضغط للعرض" بدل تحميل الصورة مباشرة */
+    /* [FIX] في public view: زرار "اضغط للعرض" بدل تحميل الصورة مباشرة — أسرع بكتير */
     if(window._pub){
       const eid='med_'+gi+'_'+ii;
-      return `<div class="mcard" id="${eid}" style="position:relative;"><button class="media-tap-btn" onclick="revealMedia('${eid}',${gi},${ii},'image')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>${escHtml(l.title||'Image')}</button>${lockBadge}</div>`;
+      return `<div class="mcard" id="${eid}" style="position:relative;"><button class="media-tap-btn" onclick="revealMedia('${eid}',${gi},${ii},'image')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>${escHtml(l.title||'Tap to view image')}</button>${lockBadge}</div>`;
     }
     return `<div class="mcard" style="position:relative;"><img src="${l.url}" loading="lazy" alt="" onclick="openLightbox(${gi},${ii})" style="cursor:zoom-in;">${lockBadge}${editBtn}</div>`;
   }
@@ -867,26 +858,22 @@ function buildItem(l,gi,ii,grpColors){
     if(locked){
       return `<div style="position:relative;"><div class="lcard gc" style="cursor:pointer;" onclick="onPwItem(${gi},${ii},'video')">&#128274; ${escHtml(l.title||'Protected Video')}</div>${editBtn}</div>`;
     }
-    /* في public view: زرار "اضغط للتشغيل" */
+    /* [FIX] في public view: زرار "اضغط للتشغيل" — أسرع وبيوفر data */
     if(window._pub){
       const eid='med_'+gi+'_'+ii;
-      return `<div class="mcard" id="${eid}" style="position:relative;"><button class="media-tap-btn" onclick="revealMedia('${eid}',${gi},${ii},'video')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>${escHtml(l.title||'Video')}</button>${lockBadge}</div>`;
+      return `<div class="mcard" id="${eid}" style="position:relative;"><button class="media-tap-btn" onclick="revealMedia('${eid}',${gi},${ii},'video')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>${escHtml(l.title||'Tap to play video')}</button>${lockBadge}</div>`;
     }
-    /* [FIX] preload="none" عشان ميحملش الفيديو تلقائياً في edit mode */
+    /* [FIX] preload="none" في edit view — ميحملش الفيديو تلقائياً */
     return `<div class="mcard" style="position:relative;"><video src="${l.url}" controls playsinline preload="none"></video>${lockBadge}${editBtn}</div>`;
   }
 
-  /* ── LOCATION ── */
   if(l.type==='location')return buildLocCard(l,gi,ii)+editBtn;
-
-  /* ── LINK ── [FIX] طبّق ألوان الجروب لو موجودة */
-  const cardStyle=grpColors?`style="background:${grpColors.lbg};color:${grpColors.ltxt};"`:''
-  if(locked)return `<div style="position:relative;"><div class="lcard gc" ${cardStyle} style="cursor:pointer;" onclick="onPwItem(${gi},${ii},'link')">&#128274; ${escHtml(l.title)}</div>${editBtn}</div>`;
+  if(locked)return `<div style="position:relative;"><div class="lcard gc" style="cursor:pointer;" onclick="onPwItem(${gi},${ii},'link')">&#128274; ${escHtml(l.title)}</div>${editBtn}</div>`;
   const trk=window._pub&&window.S?`onclick="window._fbRecordClick('${window.S.publicId}','${l.title.replace(/'/g,"\\'")}').catch(()=>{})"`:'';
-  return `<div style="position:relative;"><a href="${l.url}" target="_blank" rel="noopener" class="lcard gc" ${cardStyle} ${trk}>${escHtml(l.title)}</a>${editBtn}</div>`;
+  return `<div style="position:relative;"><a href="${l.url}" target="_blank" rel="noopener" class="lcard gc" ${trk}>${escHtml(l.title)}</a>${editBtn}</div>`;
 }
 
-/* [FIX] revealMedia — بيظهر الصورة أو الفيديو لما حد يضغط عليهم */
+/* [FIX] revealMedia — بيظهر الصورة أو الفيديو لما حد يضغط عليهم في public view */
 window.revealMedia=function(eid,gi,ii,type){
   const item=ii>=0?(window.S.links[gi].items||[])[ii]:window.S.links[gi];
   if(!item||!item.url){toast('Media not available','e');return;}
@@ -897,7 +884,7 @@ window.revealMedia=function(eid,gi,ii,type){
   }else{
     el.innerHTML=`<video src="${item.url}" controls playsinline preload="metadata" style="width:100%;display:block;max-height:300px;"></video>`;
   }
-  if(window.S)window._fbRecordClick(window.S.publicId,item.title||type).catch(()=>{});
+  if(window._pub&&window.S)window._fbRecordClick(window.S.publicId,item.title||type).catch(()=>{});
 };
 
 function buildLocCard(l,gi,ii){
@@ -919,21 +906,17 @@ function toggleLocMap(id,gi,ii){
   if(window._pub&&window.S)window._fbRecordClick(window.S.publicId,l.title||'Location').catch(()=>{});
 }
 
-/* [FIX] renderLinks — بنمرر grpColors لـ buildItem عشان ألوان الجروب تتطبق */
 function renderLinks(){
   const sec=document.getElementById('lsec');sec.innerHTML='';
   (window.S.links||[]).forEach((l,i)=>{
     const w=document.createElement('div');w.style.cssText='width:100%;';
     if(l.type==='group'){
       const hbg=l.hbg||'#1a1a1a',htxt=l.htxt||'#fff',gcbg=l.gcbg||'#111';
-      const grpColors={lbg:l.lbg||'#1e1e1e',ltxt:l.ltxt||'#fff'}; /* [FIX] */
-      let inner=(l.items||[]).map((it,ii)=>`<div style="width:100%;">${buildItem(it,i,ii,grpColors)}</div>`).join('');
+      let inner=(l.items||[]).map((it,ii)=>`<div style="width:100%;">${buildItem(it,i,ii)}</div>`).join('');
       const addBtn=window._edit?`<button onclick="openAddToGroup(${i})" style="width:100%;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.15);border-radius:12px;color:#555;padding:11px;cursor:pointer;font-size:.82rem;margin-top:4px;">+ Add to &quot;${escHtml(l.name||'Group')}&quot;</button>`:'';
       const editBtn=window._edit?`<button class="dotsbtn" onclick="openCtx(event,${i},-2)" style="margin-left:auto;">&#8942;</button>`:'';
       w.innerHTML=`<div class="grp-wrap"><div class="grp-header" style="background:${hbg};"><span class="grp-title-left" style="color:${htxt};">${escHtml(l.name||'Group')}</span>${editBtn}</div><div class="grp-inner" style="background:${gcbg}aa;">${inner}${addBtn}</div></div>`;
-    }else{
-      w.innerHTML=buildItem(l,i,-1,null); /* null = مش جوّه جروب */
-    }
+    }else{w.innerHTML=buildItem(l,i,-1);}
     sec.appendChild(w);
   });
 }
@@ -1012,15 +995,8 @@ window.onPwItem=function(gi,ii,type){
   document.getElementById('pw-modal-input').value='';document.getElementById('pw-err').style.display='none';
   document.getElementById('pw-modal').classList.add('on');
   _pwCb=entered=>{
-    if(entered===item.password){
-      closePwModal();item._unlocked=true;renderLinks();
-      if(type==='link')window.open(item.url,'_blank');
-      else if(type==='image')setTimeout(()=>openLightbox(gi,ii),60);
-      else if(type==='location'){const id=`lm${gi}x${ii}`;setTimeout(()=>toggleLocMap(id,gi,ii),80);}
-      /* [FIX] الفيديو بعد الباسورد يظهر تلقائياً */
-      else if(type==='video'){const eid='med_'+gi+'_'+ii;setTimeout(()=>revealMedia(eid,gi,ii,'video'),80);}
-      if(window._pub&&window.S)window._fbRecordClick(window.S.publicId,item.title||type).catch(()=>{});
-    }else{document.getElementById('pw-err').style.display='block';document.getElementById('pw-modal-input').value='';document.getElementById('pw-modal-input').focus();}
+    if(entered===item.password){closePwModal();item._unlocked=true;renderLinks();if(type==='link')window.open(item.url,'_blank');else if(type==='image')setTimeout(()=>openLightbox(gi,ii),60);else if(type==='location'){const id=`lm${gi}x${ii}`;setTimeout(()=>toggleLocMap(id,gi,ii),80);}if(window._pub&&window.S)window._fbRecordClick(window.S.publicId,item.title||type).catch(()=>{});}
+    else{document.getElementById('pw-err').style.display='block';document.getElementById('pw-modal-input').value='';document.getElementById('pw-modal-input').focus();}
   };
 };
 window.submitPwModal=()=>{if(_pwCb)_pwCb(document.getElementById('pw-modal-input').value);};
@@ -1105,24 +1081,13 @@ window.openAddToGroup=gi=>{addToGrpIdx=gi;document.getElementById('lmod-title').
 window.openAddLink=()=>{addToGrpIdx=-1;document.getElementById('lmod-title').innerText='Add to Profile';document.getElementById('tab-group').classList.remove('hidden');setTab('link');document.getElementById('ltitle').value='';document.getElementById('lurl').value='';document.getElementById('url-hint').innerText='';document.getElementById('lmod').classList.remove('hidden');};
 
 /* ===== MEDIA ===== */
-/* [FIX] onImgPick — أضفنا toast عشان اليوزر يعرف الصورة شغّالة */
-window.onImgPick=inp=>{
-  const f=inp.files[0];inp.value='';if(!f)return;
-  toast('Processing image\u2026','s');
-  resizeImg(f,900,.82,d64=>{
-    pendMedia={type:'image',url:d64};
-    document.getElementById('imgprev').src=d64;
-    document.getElementById('imgprev').style.display='block';
-    document.getElementById('imgbox').style.display='none';
-    toast('Image ready \u2713','s');
-  });
-};
+window.onImgPick=inp=>{const f=inp.files[0];inp.value='';if(!f)return;resizeImg(f,900,.82,d64=>{pendMedia={type:'image',url:d64};document.getElementById('imgprev').src=d64;document.getElementById('imgprev').style.display='block';document.getElementById('imgbox').style.display='none';});};
 
-/* [FIX] onVidPick — بيتحقق من الحجم قبل قراءة الفيديو */
+/* [FIX] onVidPick — بيتحقق من الحجم قبل ما يقرأ الفيديو */
 window.onVidPick=inp=>{
   const f=inp.files[0];inp.value='';if(!f)return;
-  if(f.size>VID_MAX_MB*1024*1024){
-    toast('Video too large! Max '+VID_MAX_MB+'MB. Please compress first.','e');
+  if(f.size>_MAX_VID_BYTES){
+    toast('Video too large! Max 5MB. Compress it first.','e');
     return;
   }
   toast('Reading video\u2026','s');
