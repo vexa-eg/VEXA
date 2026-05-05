@@ -320,13 +320,29 @@ body.no-bgimg::before{display:none;}
 /* ====== GROUP GRID INNER ====== */
 .grp-inner .links-grid{padding:4px 0;}
 
-/* ====== PHOTO BUTTON CARD ====== */
 .photo-btn-card{width:100%;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 5px 0 rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.5);display:block;text-decoration:none;cursor:pointer;transition:transform .15s,box-shadow .15s;}
 .photo-btn-card:hover{transform:translateY(-3px);box-shadow:0 8px 0 rgba(0,0,0,.3),0 14px 32px rgba(0,0,0,.5);}
 .photo-btn-card:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.3);}
-.photo-btn-img{width:100%;height:180px;object-fit:cover;display:block;transition:transform .3s;}
-.photo-btn-card:hover .photo-btn-img{transform:scale(1.04);}
-.photo-btn-overlay{position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(0,0,0,.72));display:flex;align-items:flex-end;padding:16px 18px;}
+/* Banner style */
+.photo-btn-card.pbs-banner .photo-btn-img{width:100%;height:180px;object-fit:cover;display:block;transition:transform .3s;}
+.photo-btn-card.pbs-banner:hover .photo-btn-img{transform:scale(1.04);}
+.photo-btn-card.pbs-banner .photo-btn-overlay{position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(0,0,0,.72));display:flex;align-items:flex-end;padding:16px 18px;}
+/* Circle Grid style */
+.photo-btn-card.pbs-circle{border-radius:20px;display:flex;flex-direction:column;align-items:center;padding:18px 14px 14px;background:var(--card);border:1px solid var(--glass);}
+.photo-btn-card.pbs-circle .photo-btn-img{width:80px;height:80px;border-radius:50%;object-fit:cover;display:block;border:2px solid rgba(255,255,255,.15);box-shadow:0 4px 12px rgba(0,0,0,.4);}
+.photo-btn-card.pbs-circle .photo-btn-overlay{position:static;background:none;display:flex;flex-direction:column;align-items:center;padding:10px 0 0;gap:6px;}
+.photo-btn-card.pbs-circle .photo-btn-title{font-size:.88rem;text-shadow:none;color:var(--link);}
+.photo-btn-card.pbs-circle .photo-btn-arrow{margin-left:0;width:26px;height:26px;}
+/* Full size style */
+.photo-btn-card.pbs-full .photo-btn-img{width:100%;height:auto;max-height:400px;object-fit:contain;display:block;background:#000;}
+.photo-btn-card.pbs-full .photo-btn-overlay{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.8));display:flex;align-items:flex-end;padding:14px 16px;}
+/* Small card style */
+.photo-btn-card.pbs-small{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--card);border:1px solid var(--glass);border-radius:16px;}
+.photo-btn-card.pbs-small .photo-btn-img{width:52px;height:52px;border-radius:12px;object-fit:cover;display:block;flex-shrink:0;}
+.photo-btn-card.pbs-small .photo-btn-overlay{position:static;background:none;display:flex;align-items:center;padding:0;flex:1;}
+.photo-btn-card.pbs-small .photo-btn-title{font-size:.9rem;text-shadow:none;color:var(--link);}
+.photo-btn-card.pbs-small .photo-btn-arrow{margin-left:auto;width:26px;height:26px;}
+/* Shared */
 .photo-btn-title{color:#fff;font-weight:700;font-size:.98rem;text-shadow:0 2px 8px rgba(0,0,0,.6);letter-spacing:.3px;}
 .photo-btn-arrow{margin-left:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .img-hint{font-size:.65rem;color:#2a2a2a;text-align:center;margin-top:-6px;margin-bottom:6px;letter-spacing:.5px;}
@@ -344,6 +360,15 @@ body.no-bgimg::before{display:none;}
 .env-title{font-size:.78rem;color:rgba(255,255,200,.4);letter-spacing:1px;text-align:center;}
 .env-tap-badge{background:rgba(255,210,50,.12);border:1px solid rgba(255,210,50,.3);border-radius:20px;padding:7px 18px;color:rgba(255,210,50,.9);font-size:.72rem;font-weight:800;letter-spacing:2.5px;}
 .text-card.revealed{animation:textRevealAnim .45s cubic-bezier(.16,1,.3,1) forwards;}
+/* FORGOT PW */
+#forgot-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(8px);z-index:7600;}
+#forgot-modal.on{opacity:1;pointer-events:all;}
+.forgot-box{background:#161616;border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:28px 24px;width:100%;max-width:320px;display:flex;flex-direction:column;gap:14px;}
+.forgot-title{font-size:1rem;font-weight:700;text-align:center;}
+.forgot-sub{font-size:.78rem;color:#555;text-align:center;line-height:1.5;}
+.forgot-msg{font-size:.78rem;text-align:center;display:none;padding:8px 12px;border-radius:10px;}
+.forgot-msg.ok{background:rgba(0,200,80,.1);color:#4c8;border:1px solid rgba(0,200,80,.2);}
+.forgot-msg.er{background:rgba(255,60,60,.1);color:#f66;border:1px solid rgba(255,60,60,.2);}
 </style>
 </head>
 <body class="no-bgimg">
@@ -377,7 +402,19 @@ body.no-bgimg::before{display:none;}
 <div id="theme-modal"><div class="theme-box"><p class="mtitle">&#127775; Choose Theme</p><div class="theme-grid"><div class="theme-opt" id="th-dark" onclick="applyThemePreset('dark')"><div class="theme-preview" style="background:#0a0a0a;"><div class="theme-prev-name" style="background:#fff;"></div><div class="theme-prev-card" style="background:#222;"></div><div class="theme-prev-card2" style="background:#222;"></div></div><div class="theme-label" style="background:#0a0a0a;color:#fff;">MIDNIGHT</div></div><div class="theme-opt" id="th-hazel" onclick="applyThemePreset('hazel')"><div class="theme-preview" style="background:#2d1400;"><div class="theme-prev-name" style="background:#fff;"></div><div class="theme-prev-card" style="background:#3d1e00;"></div><div class="theme-prev-card2" style="background:#3d1e00;"></div></div><div class="theme-label" style="background:#2d1400;color:#e8a86a;">HAZEL</div></div><div class="theme-opt" id="th-matrix" onclick="applyThemePreset('matrix')"><div class="theme-preview" style="background:#020f02;"><div class="theme-prev-name" style="background:#00ff41;"></div><div class="theme-prev-card" style="background:#0a1f0a;"></div><div class="theme-prev-card2" style="background:#0a1f0a;"></div></div><div class="theme-label" style="background:#020f02;color:#00ff41;">MATRIX</div></div><div class="theme-opt" id="th-slate" onclick="applyThemePreset('slate')"><div class="theme-preview" style="background:#0f172a;"><div class="theme-prev-name" style="background:#94a3b8;"></div><div class="theme-prev-card" style="background:#1e293b;"></div><div class="theme-prev-card2" style="background:#1e293b;"></div></div><div class="theme-label" style="background:#0f172a;color:#94a3b8;">SLATE</div></div></div><button class="mcan" onclick="closeThemeModal()">Cancel</button></div></div>
 
 <!-- AUTH -->
-<div id="auth" class="hidden"><div class="vlogo">VEXA</div><div class="vslogan">One tap, endless connection</div><div class="abox" id="abox"><p class="atitle" id="atitle">Login</p><div class="iw"><input type="email" id="aemail" class="ai" placeholder="Email" autocomplete="email"></div><div class="iw"><input type="password" id="apass" class="ai" placeholder="Password" autocomplete="current-password"><button class="eyebtn" type="button" onclick="togglePass()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="perr" id="perr">Incorrect password.</div><button class="abtn" id="abtn" onclick="doAuth()">Continue</button><button class="atoggle" id="atog" onclick="toggleMode()">New here? Sign Up</button></div></div>
+<div id="auth" class="hidden"><div class="vlogo">VEXA</div><div class="vslogan">One tap, endless connection</div><div class="abox" id="abox"><p class="atitle" id="atitle">Login</p><div class="iw"><input type="email" id="aemail" class="ai" placeholder="Email" autocomplete="email"></div><div class="iw"><input type="password" id="apass" class="ai" placeholder="Password" autocomplete="current-password"><button class="eyebtn" type="button" onclick="togglePass()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="perr" id="perr">Incorrect password.</div><button class="abtn" id="abtn" onclick="doAuth()">Continue</button><button class="atoggle" id="atog" onclick="toggleMode()">New here? Sign Up</button><button class="atoggle" style="color:#2a2a2a;margin-top:-4px;" onclick="openForgotModal()">Forgot password?</button></div></div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div id="forgot-modal">
+  <div class="forgot-box">
+    <div class="forgot-title">&#128272; Reset Password</div>
+    <div class="forgot-sub">Enter your email and we'll send you a reset link.</div>
+    <input type="email" id="forgot-email" class="mi" placeholder="Your email address&#8230;" style="margin-bottom:0;">
+    <div class="forgot-msg" id="forgot-msg"></div>
+    <button class="abtn" id="forgot-btn" onclick="doForgotPassword()">Send Reset Link</button>
+    <button class="pw-cancel-txt" onclick="closeForgotModal()">Cancel</button>
+  </div>
+</div>
 
 <!-- APP -->
 <div id="app" class="hidden">
@@ -442,7 +479,21 @@ body.no-bgimg::before{display:none;}
   </div>
   <div id="tp-link"><input type="text" id="ltitle" class="mi" placeholder="Name (e.g. Instagram)" oninput="updateUrlHint()"><input type="text" id="lurl" class="mi" placeholder="Number, email, or URL&#8230;" oninput="updateUrlHint()"><div class="url-hint" id="url-hint"></div><p class="clabel">Password (optional)</p><div class="pw-row"><label class="pw-toggle"><input type="checkbox" id="link-pw-on" onchange="togglePwInput('link-pw-field',this.checked)"><span class="pw-track"></span><span class="pw-thumb"></span></label><span class="pw-lbl">Protect with password</span></div><div id="link-pw-field" style="display:none;"><input type="text" id="link-pw" class="mi" placeholder="Set password&#8230;"></div></div>
   <div id="tp-text" class="hidden"><textarea id="text-content" class="mi" rows="5" placeholder="Write your text, note, or message&#8230;"></textarea><p class="clabel">Password (optional)</p><div class="pw-row"><label class="pw-toggle"><input type="checkbox" id="text-pw-on" onchange="togglePwInput('text-pw-field',this.checked)"><span class="pw-track"></span><span class="pw-thumb"></span></label><span class="pw-lbl">Lock in envelope &#128140;</span></div><div id="text-pw-field" style="display:none;"><input type="text" id="text-pw" class="mi" placeholder="Set password&#8230;"></div></div>
-  <div id="tp-photobtn" class="hidden"><input type="text" id="photobtn-title" class="mi" placeholder="Button label (e.g. View Portfolio)"><input type="text" id="photobtn-url" class="mi" placeholder="Destination URL&#8230;"><p class="clabel">Cover Image</p><div class="upbox" id="photobtnbox" onclick="triggerUpload('photobtn-img-input')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Select cover image</div><div class="img-hint">&#9432; Best size: 900 &times; 400 px (wide banner)</div><img id="photobtn-prev" src="" style="display:none;width:100%;border-radius:12px;margin-top:6px;max-height:160px;object-fit:cover;"></div>
+  <div id="tp-photobtn" class="hidden">
+    <input type="text" id="photobtn-title" class="mi" placeholder="Button label (e.g. View Portfolio)">
+    <input type="text" id="photobtn-url" class="mi" placeholder="Destination URL&#8230;">
+    <p class="clabel">Display Style</p>
+    <div class="alb-theme-grid" style="margin-bottom:12px;">
+      <div class="alb-theme-opt selected" id="pbs-banner" onclick="setPbStyle('banner')"><div class="alb-theme-icon">&#128444;</div><div>Banner</div></div>
+      <div class="alb-theme-opt" id="pbs-circle" onclick="setPbStyle('circle')"><div class="alb-theme-icon">&#11093;</div><div>Circle Grid</div></div>
+      <div class="alb-theme-opt" id="pbs-full" onclick="setPbStyle('full')"><div class="alb-theme-icon">&#128247;</div><div>Full Size</div></div>
+      <div class="alb-theme-opt" id="pbs-small" onclick="setPbStyle('small')"><div class="alb-theme-icon">&#128272;</div><div>Small Card</div></div>
+    </div>
+    <p class="clabel">Cover Image</p>
+    <div class="upbox" id="photobtnbox" onclick="triggerUpload('photobtn-img-input')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Select cover image</div>
+    <div class="img-hint">&#9432; Best size: 900 &times; 400 px (wide banner)</div>
+    <img id="photobtn-prev" src="" style="display:none;width:100%;border-radius:12px;margin-top:6px;max-height:160px;object-fit:cover;">
+  </div>
   <div id="tp-image" class="hidden"><input type="text" id="img-title" class="mi" placeholder="Label (e.g. My Photos)"><div class="upbox" id="imgbox" onclick="triggerUpload('imginput')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Select image</div><div class="img-hint">&#9432; Best size: 900 &times; 600 px</div><img id="imgprev" src="" style="display:none;width:100%;border-radius:12px;margin-top:10px;max-height:220px;object-fit:cover;"><p class="clabel">Password (optional)</p><div class="pw-row"><label class="pw-toggle"><input type="checkbox" id="img-pw-on" onchange="togglePwInput('img-pw-field',this.checked)"><span class="pw-track"></span><span class="pw-thumb"></span></label><span class="pw-lbl">Protect with password</span></div><div id="img-pw-field" style="display:none;"><input type="text" id="img-pw" class="mi" placeholder="Set password&#8230;"></div></div>
   <div id="tp-video" class="hidden"><input type="text" id="vid-title" class="mi" placeholder="Label (e.g. Promo Video)"><div class="vid-size-info">&#9888;&#65039; Max video size: <strong>10 MB</strong> &mdash; Compress before uploading</div><div class="upbox" id="vidbox" onclick="triggerUpload('vidinput')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Select video</div><video id="vidprev" style="display:none;width:100%;border-radius:12px;margin-top:10px;max-height:220px;" controls playsinline></video><p class="clabel">Password (optional)</p><div class="pw-row"><label class="pw-toggle"><input type="checkbox" id="vid-pw-on" onchange="togglePwInput('vid-pw-field',this.checked)"><span class="pw-track"></span><span class="pw-thumb"></span></label><span class="pw-lbl">Protect with password</span></div><div id="vid-pw-field" style="display:none;"><input type="text" id="vid-pw" class="mi" placeholder="Set password&#8230;"></div></div>
   <div id="tp-location" class="hidden"><input type="text" id="loc-label-input" class="mi" placeholder="Label (e.g. Our Shop)"><p class="clabel">Password (optional)</p><div class="pw-row"><label class="pw-toggle"><input type="checkbox" id="loc-pw-on" onchange="togglePwInput('loc-pw-field',this.checked)"><span class="pw-track"></span><span class="pw-thumb"></span></label><span class="pw-lbl">Protect with password</span></div><div id="loc-pw-field" style="display:none;"><input type="text" id="loc-pw" class="mi" placeholder="Set password&#8230;"></div></div>
@@ -619,6 +670,38 @@ window.doAuth=async function(){
 };
 window.doLogout=async()=>{stopLiveLocation();await _auth.signOut();location.reload();};
 
+/* ===== FORGOT PASSWORD ===== */
+window.openForgotModal=function(){
+  const email=document.getElementById('aemail').value.trim();
+  document.getElementById('forgot-email').value=email;
+  document.getElementById('forgot-msg').style.display='none';
+  document.getElementById('forgot-btn').disabled=false;
+  document.getElementById('forgot-btn').innerText='Send Reset Link';
+  document.getElementById('forgot-modal').classList.add('on');
+};
+window.closeForgotModal=function(){document.getElementById('forgot-modal').classList.remove('on');};
+window.doForgotPassword=async function(){
+  const email=document.getElementById('forgot-email').value.trim();
+  const msg=document.getElementById('forgot-msg'),btn=document.getElementById('forgot-btn');
+  if(!email){msg.className='forgot-msg er';msg.innerText='Please enter your email address.';msg.style.display='block';return;}
+  btn.disabled=true;btn.innerText='Sending\u2026';msg.style.display='none';
+  try{
+    await firebase.auth().sendPasswordResetEmail(email);
+    msg.className='forgot-msg ok';
+    msg.innerText='\u2713 Reset link sent! Check your inbox (and spam folder).';
+    msg.style.display='block';
+    btn.innerText='Sent \u2713';
+    setTimeout(()=>closeForgotModal(),3500);
+  }catch(e){
+    btn.disabled=false;btn.innerText='Send Reset Link';
+    const c=e.code||'';
+    msg.className='forgot-msg er';
+    msg.innerText=c.includes('user-not-found')?'No account found with this email.':c.includes('invalid-email')?'Invalid email address.':e.message||'Error. Try again.';
+    msg.style.display='block';
+  }
+};
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('forgot-modal').classList.contains('on'))doForgotPassword();});
+
 /* ===== RENDER ===== */
 function render(){
   if(!window.S)return;const c=window.S.colors||{};
@@ -651,7 +734,18 @@ function buildItem(l,gi,ii,forceStyle,grpDefs){
   }
   if(l.type==='photobtn'){
     const trk=window._pub&&window.S?`onclick="window._FBClick('${window.S.publicId}','${(l.title||'').replace(/'/g,"\\'")}').catch(()=>{})"` :'';
-    return `<div style="position:relative;"><a href="${l.url}" target="_blank" rel="noopener" class="photo-btn-card" ${trk}><img class="photo-btn-img" src="${l.coverUrl||''}" loading="lazy" alt=""><div class="photo-btn-overlay"><span class="photo-btn-title">${escHtml(l.title||'')}</span><div class="photo-btn-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div></a>${editBtn}</div>`;
+    const style=l.pbStyle||'banner';
+    const arrowSvg=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+    if(style==='circle'){
+      return `<div style="position:relative;"><a href="${l.url}" target="_blank" rel="noopener" class="photo-btn-card pbs-circle" ${trk}><img class="photo-btn-img" src="${l.coverUrl||''}" loading="lazy" alt=""><div class="photo-btn-overlay"><span class="photo-btn-title">${escHtml(l.title||'')}</span><div class="photo-btn-arrow">${arrowSvg}</div></div></a>${editBtn}</div>`;
+    } else if(style==='full'){
+      return `<div style="position:relative;"><a href="${l.url}" target="_blank" rel="noopener" class="photo-btn-card pbs-full" ${trk}><img class="photo-btn-img" src="${l.coverUrl||''}" loading="lazy" alt=""><div class="photo-btn-overlay"><span class="photo-btn-title">${escHtml(l.title||'')}</span><div class="photo-btn-arrow">${arrowSvg}</div></div></a>${editBtn}</div>`;
+    } else if(style==='small'){
+      return `<div style="position:relative;"><a href="${l.url}" target="_blank" rel="noopener" class="photo-btn-card pbs-small" ${trk}><img class="photo-btn-img" src="${l.coverUrl||''}" loading="lazy" alt=""><div class="photo-btn-overlay"><span class="photo-btn-title">${escHtml(l.title||'')}</span><div class="photo-btn-arrow">${arrowSvg}</div></div></a>${editBtn}</div>`;
+    } else {
+      /* banner (default) */
+      return `<div style="position:relative;"><a href="${l.url}" target="_blank" rel="noopener" class="photo-btn-card pbs-banner" ${trk}><img class="photo-btn-img" src="${l.coverUrl||''}" loading="lazy" alt=""><div class="photo-btn-overlay"><span class="photo-btn-title">${escHtml(l.title||'')}</span><div class="photo-btn-arrow">${arrowSvg}</div></div></a>${editBtn}</div>`;
+    }
   }
   if(l.type==='image'){
     if(locked)return `<div style="position:relative;"><div class="lcard gc" style="cursor:pointer;" onclick="onPwItem(${gi},${ii},'image')">&#128274; ${escHtml(l.title||'Protected Image')}</div>${editBtn}</div>`;
@@ -716,11 +810,33 @@ function renderLinks(){
   const linkStyle=window.S?.linkStyle||'list';let gridWrap=null;
   (window.S.links||[]).forEach((l,i)=>{
     if(l.type==='group'){
-      gridWrap=null;const hbg=l.hbg||'#1a1a1a',htxt=l.htxt||'#fff',gcbg=l.gcbg||'#111';
-      let inner=(l.items||[]).map((it,ii)=>`<div style="width:100%;">${buildItem(it,i,ii)}</div>`).join('');
+      gridWrap=null;
+      const hbg=l.hbg||'#1a1a1a',htxt=l.htxt||'#fff',gcbg=l.gcbg||'#111';
+      const grpLinkStyle=l.linkStyle||'list';
+      /* Group color defaults passed down to items */
+      const grpDefs={iconColor:l.iconColor||null,iconBg:l.iconBg||null,labelColor:l.labelColor||null,lbg:l.lbg||null,ltxt:l.ltxt||null};
+      let innerHtml='';
+      if(grpLinkStyle==='grid'){
+        /* Render items in 3-column grid */
+        const linkItems=(l.items||[]).filter(it=>it.type==='link');
+        const nonLinkItems=(l.items||[]).filter(it=>it.type!=='link');
+        let gridCells=linkItems.map((it,ii)=>{
+          const realIi=(l.items||[]).indexOf(it);
+          return buildItem(it,i,realIi,'grid',grpDefs);
+        }).join('');
+        if(gridCells) innerHtml+=`<div class="links-grid" style="padding:4px 0;">${gridCells}</div>`;
+        nonLinkItems.forEach(it=>{
+          const realIi=(l.items||[]).indexOf(it);
+          innerHtml+=`<div style="width:100%;">${buildItem(it,i,realIi,'list',grpDefs)}</div>`;
+        });
+      } else {
+        innerHtml=(l.items||[]).map((it,ii)=>`<div style="width:100%;">${buildItem(it,i,ii,'list',grpDefs)}</div>`).join('');
+      }
       const addBtn=window._edit?`<button onclick="openAddToGroup(${i})" style="width:100%;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.15);border-radius:12px;color:#555;padding:11px;cursor:pointer;font-size:.82rem;margin-top:4px;">+ Add to &quot;${escHtml(l.name||'Group')}&quot;</button>`:'';
       const editBtn=window._edit?`<button class="dotsbtn" onclick="openCtx(event,this,${i},-2)" style="margin-left:auto;">&#8942;</button>`:'';
-      const w=document.createElement('div');w.style.cssText='width:100%;';w.innerHTML=`<div class="grp-wrap"><div class="grp-header" style="background:${hbg};"><span class="grp-title-left" style="color:${htxt};">${escHtml(l.name||'Group')}</span>${editBtn}</div><div class="grp-inner" style="background:${gcbg}aa;">${inner}${addBtn}</div></div>`;sec.appendChild(w);
+      const w=document.createElement('div');w.style.cssText='width:100%;';
+      w.innerHTML=`<div class="grp-wrap"><div class="grp-header" style="background:${hbg};"><span class="grp-title-left" style="color:${htxt};">${escHtml(l.name||'Group')}</span>${editBtn}</div><div class="grp-inner" style="background:${gcbg}aa;">${innerHtml}${addBtn}</div></div>`;
+      sec.appendChild(w);
     } else if(l.type==='album'){
       gridWrap=null;const w=document.createElement('div');w.style.cssText='width:100%;';w.innerHTML=buildAlbumCard(l,i);sec.appendChild(w);
     } else if(linkStyle==='grid'&&l.type==='link'){
@@ -810,7 +926,7 @@ window.confirmStaticLoc=function(){const lat=parseFloat(document.getElementById(
 
 /* ===== TABS ===== */
 const ALL_TABS=['link','text','photobtn','image','video','location','group','album'];
-window.setTab=function(t){curTab=t;pendMedia=null;_pendPhotoBtnImg=null;ALL_TABS.forEach(x=>{const tab=document.getElementById('tab-'+x),tp=document.getElementById('tp-'+x);if(tab)tab.classList.toggle('on',x===t);if(tp)tp.classList.toggle('hidden',x!==t);});const imgprev=document.getElementById('imgprev'),vidprev=document.getElementById('vidprev'),pbprev=document.getElementById('photobtn-prev');if(imgprev)imgprev.style.display='none';if(vidprev)vidprev.style.display='none';if(pbprev)pbprev.style.display='none';const imgbox=document.getElementById('imgbox'),vidbox=document.getElementById('vidbox'),pbbox=document.getElementById('photobtnbox');if(imgbox)imgbox.style.display='flex';if(vidbox)vidbox.style.display='flex';if(pbbox)pbbox.style.display='flex';};
+window.setTab=function(t){curTab=t;pendMedia=null;_pendPhotoBtnImg=null;_pendPbStyle='banner';['banner','circle','full','small'].forEach(k=>{const el=document.getElementById('pbs-'+k);if(el)el.classList.toggle('selected',k==='banner');});ALL_TABS.forEach(x=>{const tab=document.getElementById('tab-'+x),tp=document.getElementById('tp-'+x);if(tab)tab.classList.toggle('on',x===t);if(tp)tp.classList.toggle('hidden',x!==t);});const imgprev=document.getElementById('imgprev'),vidprev=document.getElementById('vidprev'),pbprev=document.getElementById('photobtn-prev');if(imgprev)imgprev.style.display='none';if(vidprev)vidprev.style.display='none';if(pbprev)pbprev.style.display='none';const imgbox=document.getElementById('imgbox'),vidbox=document.getElementById('vidbox'),pbbox=document.getElementById('photobtnbox');if(imgbox)imgbox.style.display='flex';if(vidbox)vidbox.style.display='flex';if(pbbox)pbbox.style.display='flex';};
 window.openAddToGroup=gi=>{
   addToGrpIdx=gi;const isAlb=window.S.links[gi]&&window.S.links[gi].type==='album';
   document.getElementById('lmod-title').innerText=isAlb?'Add Media to Album':'Add to Group';
@@ -829,6 +945,9 @@ window.onAlbCoverPick=function(inp,prevId){const f=inp.files[0];inp.value='';if(
 /* ===== MEDIA PICK ===== */
 window.onImgPick=inp=>{const f=inp.files[0];inp.value='';if(!f)return;resizeImg(f,900,.82,d64=>{pendMedia={type:'image',url:d64};document.getElementById('imgprev').src=d64;document.getElementById('imgprev').style.display='block';document.getElementById('imgbox').style.display='none';});};
 window.onVidPick=inp=>{const f=inp.files[0];inp.value='';if(!f)return;if(f.size>_MAX_VID){toast('Video too large! Max 10MB. Please compress first.','e');return;}toast('Reading video\u2026','s');const r=new FileReader();r.onload=e=>{pendMedia={type:'video',url:e.target.result};document.getElementById('vidprev').src=e.target.result;document.getElementById('vidprev').style.display='block';document.getElementById('vidbox').style.display='none';toast('Video ready \u2713','s');};r.readAsDataURL(f);};
+let _pendPbStyle='banner';
+window.setPbStyle=function(s){_pendPbStyle=s;['banner','circle','full','small'].forEach(k=>{const el=document.getElementById('pbs-'+k);if(el)el.classList.toggle('selected',k===s);});};
+window.onPhotoBtnPick=inp=>{const f=inp.files[0];inp.value='';if(!f)return;resizeImg(f,900,.82,d64=>{_pendPhotoBtnImg=d64;const prev=document.getElementById('photobtn-prev');if(prev){prev.src=d64;prev.style.display='block';}const box=document.getElementById('photobtnbox');if(box)box.style.display='none';toast('Image ready \u2713','s');});};
 window.onAlbumMediaPick=inp=>{
   const files=Array.from(inp.files);inp.value='';if(!files.length)return;
   const gi=addToGrpIdx>=0?addToGrpIdx:-1;if(gi<0||!window.S.links[gi]||window.S.links[gi].type!=='album'){toast('Select an album first','e');return;}
@@ -855,7 +974,7 @@ window.addItem=function(){
   let item=null;
   if(curTab==='link'){const t=document.getElementById('ltitle').value.trim(),r=document.getElementById('lurl').value.trim();if(!t||!r){toast('Fill in name and URL','e');return;}const pwOn=document.getElementById('link-pw-on').checked,pw=pwOn?document.getElementById('link-pw').value.trim():null;item={type:'link',title:t,url:smartPrefix(t,r),password:pw||null};}
   else if(curTab==='text'){const c=document.getElementById('text-content').value.trim();if(!c){toast('Enter some text','e');return;}const pwOn=document.getElementById('text-pw-on').checked,pw=pwOn?document.getElementById('text-pw').value.trim():null;item={type:'text',content:c,password:pw||null};}
-  else if(curTab==='photobtn'){const t=document.getElementById('photobtn-title').value.trim(),r=document.getElementById('photobtn-url').value.trim();if(!t){toast('Enter a button label','e');return;}if(!r){toast('Enter a destination URL','e');return;}if(!_pendPhotoBtnImg){toast('Select a cover image first','e');return;}item={type:'photobtn',title:t,url:smartPrefix(t,r),coverUrl:_pendPhotoBtnImg};_pendPhotoBtnImg=null;}
+  else if(curTab==='photobtn'){const t=document.getElementById('photobtn-title').value.trim(),r=document.getElementById('photobtn-url').value.trim();if(!t){toast('Enter a button label','e');return;}if(!r){toast('Enter a destination URL','e');return;}if(!_pendPhotoBtnImg){toast('Select a cover image first','e');return;}item={type:'photobtn',title:t,url:smartPrefix(t,r),coverUrl:_pendPhotoBtnImg,pbStyle:_pendPbStyle};_pendPhotoBtnImg=null;}
   else if(curTab==='group'){const name=document.getElementById('grp-name').value.trim();if(!name){toast('Enter group name','e');return;}item={type:'group',name,linkStyle:_newGrpStyle,hbg:document.getElementById('grp-hbg').value,htxt:document.getElementById('grp-htxt').value,gcbg:document.getElementById('grp-cbg').value,lbg:document.getElementById('grp-lbg').value,ltxt:document.getElementById('grp-ltxt').value,iconColor:document.getElementById('grp-icon-color').value,iconBg:document.getElementById('grp-icon-bg').value,labelColor:document.getElementById('grp-label-color').value,items:[]};}
   else if(curTab==='album'){const name=document.getElementById('alb-name').value.trim();if(!name){toast('Enter album name','e');return;}item={type:'album',name,albumTheme:_selectedAlbTheme,coverUrl:_pendAlbCover||null,items:[]};_pendAlbCover=null;}
   else if(pendMedia){const isImg=curTab==='image';const k=isImg?'img':'vid';const titleEl=document.getElementById(k+'-title');const userTitle=titleEl?titleEl.value.trim():'';const pwOn=document.getElementById(k+'-pw-on').checked,pw=pwOn?document.getElementById(k+'-pw').value.trim():null;item={...pendMedia,title:userTitle||(isImg?'Photo':'Video'),password:pw||null};}
@@ -868,8 +987,38 @@ window.addItem=function(){
 };
 
 /* ===== EDIT GROUP / ALBUM ===== */
-window.openEditGroup=gi=>{editGrpIdx=gi;const g=window.S.links[gi];document.getElementById('eg-name').value=g.name||'';document.getElementById('eg-hbg').value=g.hbg||'#1a1a1a';document.getElementById('eg-htxt').value=g.htxt||'#fff';document.getElementById('eg-cbg').value=g.gcbg||'#111';document.getElementById('eg-lbg').value=g.lbg||'#1e1e1e';document.getElementById('eg-ltxt').value=g.ltxt||'#fff';document.getElementById('egmod').classList.remove('hidden');};
-window.saveGroupEdit=function(){const g=window.S.links[editGrpIdx];g.name=document.getElementById('eg-name').value.trim()||g.name;g.hbg=document.getElementById('eg-hbg').value;g.htxt=document.getElementById('eg-htxt').value;g.gcbg=document.getElementById('eg-cbg').value;g.lbg=document.getElementById('eg-lbg').value;g.ltxt=document.getElementById('eg-ltxt').value;save();renderLinks();closeModals();toast('Updated \u2713','s');};
+window.openEditGroup=gi=>{
+  editGrpIdx=gi;const g=window.S.links[gi];
+  document.getElementById('eg-name').value=g.name||'';
+  document.getElementById('eg-hbg').value=g.hbg||'#1a1a1a';
+  document.getElementById('eg-htxt').value=g.htxt||'#fff';
+  document.getElementById('eg-cbg').value=g.gcbg||'#111';
+  document.getElementById('eg-lbg').value=g.lbg||'#1e1e1e';
+  document.getElementById('eg-ltxt').value=g.ltxt||'#fff';
+  document.getElementById('eg-icon-color').value=g.iconColor||'#ffffff';
+  document.getElementById('eg-icon-bg').value=g.iconBg||'#1e1e1e';
+  document.getElementById('eg-label-color').value=g.labelColor||'#ffffff';
+  _egGrpStyle=g.linkStyle||'list';
+  document.getElementById('eglo-list').classList.toggle('on',_egGrpStyle==='list');
+  document.getElementById('eglo-grid').classList.toggle('on',_egGrpStyle==='grid');
+  document.getElementById('egmod').classList.remove('hidden');
+};
+window.setEgLayout=function(style){_egGrpStyle=style;document.getElementById('eglo-list').classList.toggle('on',style==='list');document.getElementById('eglo-grid').classList.toggle('on',style==='grid');};
+window.setNewGrpLayout=function(style){_newGrpStyle=style;document.getElementById('grplo-list').classList.toggle('on',style==='list');document.getElementById('grplo-grid').classList.toggle('on',style==='grid');};
+window.saveGroupEdit=function(){
+  const g=window.S.links[editGrpIdx];
+  g.name=document.getElementById('eg-name').value.trim()||g.name;
+  g.hbg=document.getElementById('eg-hbg').value;
+  g.htxt=document.getElementById('eg-htxt').value;
+  g.gcbg=document.getElementById('eg-cbg').value;
+  g.lbg=document.getElementById('eg-lbg').value;
+  g.ltxt=document.getElementById('eg-ltxt').value;
+  g.iconColor=document.getElementById('eg-icon-color').value;
+  g.iconBg=document.getElementById('eg-icon-bg').value;
+  g.labelColor=document.getElementById('eg-label-color').value;
+  g.linkStyle=_egGrpStyle;
+  save();renderLinks();closeModals();toast('Updated \u2713','s');
+};
 window.openEditAlbum=gi=>{
   _albumGi=gi;_editAlbCover=null;const a=window.S.links[gi];document.getElementById('ealb-name').value=a.name||'';
   _editAlbTheme=a.albumTheme||'snap';['snap','carousel','floating','flipbook'].forEach(k=>{const el=document.getElementById('ealbt-'+k);if(el)el.classList.toggle('selected',k===_editAlbTheme);});
