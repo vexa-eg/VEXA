@@ -928,6 +928,8 @@ function cldUrl(url,transform){
   if(/^(f_|q_|w_|c_|h_)/.test(rest))return url;
   return base+(transform||'f_auto,q_auto:good')+'/'+rest;
 }
+
+/* ── Lite localStorage cache: stores profile WITH covers but WITHOUT album items ──
    Allows instant rendering on QR scan even for large profiles > localStorage 5MB limit ── */
 function saveLiteCache(pid,profile){
   /* With Firebase Storage, album items are URLs (tiny), so try full profile first.
