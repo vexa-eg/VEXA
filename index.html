@@ -327,16 +327,6 @@ body.no-bgimg::before{display:none;}
 .grid-litem:active .gli-circle{transform:translateY(1px) scale(.98);box-shadow:0 2px 0 rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.3);}
 .text-card{width:100%;padding:18px 20px;border-radius:16px;background:var(--card);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass);color:var(--link);font-size:.9rem;line-height:1.65;white-space:pre-wrap;word-break:break-word;position:relative;box-shadow:0 4px 0 rgba(0,0,0,.25),0 6px 20px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);}
 .mcard{width:100%;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.1);position:relative;box-shadow:0 5px 0 rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.5);}
-/* Image & Video standalone cover cards — same blur-reveal pattern as album */
-.mcover-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;cursor:pointer;border-radius:16px;}
-.mcover-wrap .album-cover-img{width:100%;height:100%;object-fit:cover;display:block;}
-.mcover-footer{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:rgba(18,18,18,.95);border-top:1px solid rgba(255,255,255,.06);}
-.mcover-label{font-size:.8rem;font-weight:700;color:#fff;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
-.mcover-type{font-size:.64rem;color:#444;letter-spacing:1.5px;text-transform:uppercase;margin-left:8px;flex-shrink:0;}
-.mcover-play{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:background .2s,transform .2s;}
-.mcover-play svg{margin-left:3px;}
-.mcover-wrap:active .mcover-play{background:rgba(255,255,255,.22);transform:translate(-50%,-50%) scale(.93);}
-.mcover-video-card{width:100%;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 5px 0 rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.5);background:#0d0d0d;}
 .album-card{width:100%;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);box-shadow:0 5px 0 rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.5);}
 .loc-card{width:100%;border-radius:16px;background:var(--card);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass);overflow:hidden;box-shadow:0 4px 0 rgba(0,0,0,.25),0 6px 18px rgba(0,0,0,.4);}
 .abtn{background:#fff;color:#000;border:none;padding:14px;border-radius:100px;font-weight:800;font-size:.93rem;cursor:pointer;transition:opacity .2s,transform .1s,box-shadow .1s;box-shadow:0 4px 0 rgba(0,0,0,.3),0 8px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.5);}
@@ -680,7 +670,7 @@ body.no-bgimg::before{display:none;}
   <div class="analytics-wrap edit-only">
     <!-- Storage Meter — above analytics -->
     <div class="qr-storage-meter" id="qr-storage-outer">
-      <div class="qr-sm-top"><span class="qr-sm-title">&#128190; Profile Storage</span><span class="qr-sm-val" id="storage-meter-val">0 MB / 50 MB</span></div>
+      <div class="qr-sm-top"><span class="qr-sm-title">&#128190; Profile Storage</span><span class="qr-sm-val" id="storage-meter-val">0 MB / 100 MB</span></div>
       <div class="qr-sm-bg"><div class="storage-bar-fill" id="storage-bar-fill" style="width:0%;background:#4cf;"></div></div>
       <div class="qr-sm-hint" id="storage-bar-hint">Calculating&#8230;</div>
     </div>
@@ -837,9 +827,9 @@ const _db=firebase.database();
 const _CLD_CLOUD='davtjb9lp';
 const _CLD_PRESET='vexa.eg';
 /* Media stored in Cloudinary CDN, RTDB holds only metadata+URLs */
-const _MAX_BYTES=50*1024*1024;
+const _MAX_BYTES=100*1024*1024;
 const _MAX_VIDEO_MB=20;
-const _WARN_BYTES=42*1024*1024;
+const _WARN_BYTES=90*1024*1024;
 const _SAVE_BATCH=15;
 
 /* ── Memory-safe profile size: sums string lengths WITHOUT JSON.stringify copies ── */
@@ -973,15 +963,15 @@ function updateStorageMeter(){
   const pct=Math.min(100,(bytes/_MAX_BYTES)*100);
   fill.style.width=pct+'%';
   fill.style.background=pct>=95?'#f44':pct>=80?'#f90':pct>=60?'#fc0':'#4cf';
-  val.innerText=mb.toFixed(1)+' MB / 50 MB';
+  val.innerText=mb.toFixed(1)+' MB / 100 MB';
   val.style.color=pct>=95?'#f66':pct>=80?'#f90':'#666';
-  if(hint){hint.innerText=pct>=95?'⚠ Profile nearly full!':pct>=80?'Getting close to the limit':pct>=50?'Half used · Some space left':'Plenty of space left';}
+  if(hint){hint.innerText=pct>=95?'⚠ Profile nearly full!':pct>=80?'Getting close to the limit':pct>=50?'Moderate usage · Plenty of space left':'Plenty of space left';}
 }
 function checkStorageBeforeAdd(extraBytes){
   const cur=getProfileBytes();
-  if(cur>=_MAX_BYTES){toast('Profile at 50MB limit — remove some media first','e');return false;}
+  if(cur>=_MAX_BYTES){toast('Profile at 100MB limit — remove some media first','e');return false;}
   if(cur+extraBytes>_MAX_BYTES){const rem=Math.max(0,(_MAX_BYTES-cur)/(1024*1024));toast('Not enough space — only '+rem.toFixed(1)+'MB remaining','e');return false;}
-  if(cur>_WARN_BYTES){const mb=(cur/(1024*1024));toast('Profile is '+mb.toFixed(1)+'MB / 50MB — almost full!','e');}
+  if(cur>_WARN_BYTES){const mb=(cur/(1024*1024));toast('Profile is '+mb.toFixed(1)+'MB / 100MB — almost full!','e');}
   return true;
 }
 const _FBSave=async(uid,state)=>{
@@ -990,8 +980,8 @@ const _FBSave=async(uid,state)=>{
   const s={...state,links:strip(state.links||[])};
   /* Use fast getProfileBytes() instead of new Blob(JSON.stringify()) — no large copy */
   const approxBytes=getProfileBytes();
-  if(approxBytes>_MAX_BYTES){const mb=Math.round(approxBytes/(1024*1024));toast('Profile too large ('+mb+'MB) — max 50MB. Remove some media.','e');return;}
-  if(approxBytes>_WARN_BYTES){const mb=(approxBytes/(1024*1024)).toFixed(1);toast('\u26a0 Profile: '+mb+'MB / 50MB \u2014 nearing limit!','e');}  return Promise.all([_db.ref('users/'+uid).set(s),_db.ref('pub/'+s.publicId).set(s)]).catch(e=>{console.warn(e);toast('Save failed — check connection','e');});
+  if(approxBytes>_MAX_BYTES){const mb=Math.round(approxBytes/(1024*1024));toast('Profile too large ('+mb+'MB) — max 100MB. Remove some media.','e');return;}
+  if(approxBytes>_WARN_BYTES){const mb=(approxBytes/(1024*1024)).toFixed(1);toast('\u26a0 Profile: '+mb+'MB / 100MB \u2014 nearing limit!','e');}  return Promise.all([_db.ref('users/'+uid).set(s),_db.ref('pub/'+s.publicId).set(s)]).catch(e=>{console.warn(e);toast('Save failed — check connection','e');});
 };
 const _FBLoad=async uid=>{const s=await _db.ref('users/'+uid).once('value');return s.exists()?s.val():null;};
 const _FBLoadPub=async pid=>{const s=await _db.ref('pub/'+pid).once('value');return s.exists()?s.val():null;};
@@ -1306,32 +1296,13 @@ function buildItem(l,gi,ii,forceStyle,grpDefs){
   }
   if(l.type==='image'){
     if(locked)return `<div style="position:relative;"><div class="lcard gc" style="cursor:pointer;" onclick="onPwItem(${gi},${ii},'image')">&#128274; ${escHtml(l.title||'Protected Image')}</div>${editBtn}</div>`;
-    /* Cover card: blur-reveal image + label footer */
-    const src=cldOpt(l.url,'w_900,h_506,c_fill,f_auto,q_auto:75');
-    return `<div class="mcover-video-card" style="position:relative;">
-      <div class="mcover-wrap" onclick="openLightbox(${gi},${ii})">
-        <img class="album-cover-img" src="${src}" loading="lazy" decoding="async" alt="" onload="this.classList.add('loaded')">
-        <div class="album-cover-overlay" style="background:rgba(0,0,0,.22);">
-          <div class="album-tap-badge">TAP TO VIEW</div>
-        </div>
-      </div>
-      <div class="mcover-footer">${lockBadge}<span class="mcover-label">&#128247; ${escHtml(l.title||'Photo')}</span><span class="mcover-type">IMAGE</span></div>
-      ${editBtn}</div>`;
+    if(window._pub){const eid='med_'+gi+'_'+ii;return `<div class="mcard" id="${eid}" style="position:relative;"><button class="media-tap-btn" onclick="revealMedia('${eid}',${gi},${ii},'image')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>${escHtml(l.title||'Tap to view image')}</button>${lockBadge}</div>`;}
+    return `<div class="mcard" style="position:relative;"><img src="${l.url}" loading="lazy" alt="" onclick="openLightbox(${gi},${ii})" style="cursor:zoom-in;">${lockBadge}${editBtn}</div>`;
   }
   if(l.type==='video'){
     if(locked)return `<div style="position:relative;"><div class="lcard gc" style="cursor:pointer;" onclick="onPwItem(${gi},${ii},'video')">&#128274; ${escHtml(l.title||'Protected Video')}</div>${editBtn}</div>`;
-    /* Cover card: video poster + play button + label footer */
-    const vid_id='vmc_'+gi+'_'+ii;
-    return `<div class="mcover-video-card" style="position:relative;">
-      <div class="mcover-wrap" id="${vid_id}_wrap" onclick="playMcoverVideo('${vid_id}')">
-        <video id="${vid_id}" src="${l.url}" preload="metadata" playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
-        <div class="album-cover-overlay" id="${vid_id}_ov" style="background:rgba(0,0,0,.3);">
-          <div class="mcover-play"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><polygon points="5,3 19,12 5,21"/></svg></div>
-          <div class="album-tap-badge" style="margin-top:8px;">TAP TO PLAY</div>
-        </div>
-      </div>
-      <div class="mcover-footer">${lockBadge}<span class="mcover-label">&#127910; ${escHtml(l.title||'Video')}</span><span class="mcover-type">VIDEO</span></div>
-      ${editBtn}</div>`;
+    if(window._pub){const eid='med_'+gi+'_'+ii;return `<div class="mcard" id="${eid}" style="position:relative;"><button class="media-tap-btn" onclick="revealMedia('${eid}',${gi},${ii},'video')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>${escHtml(l.title||'Tap to play video')}</button>${lockBadge}</div>`;}
+    return `<div class="mcard" style="position:relative;"><video src="${l.url}" controls playsinline preload="none"></video>${lockBadge}${editBtn}</div>`;
   }
   if(l.type==='location')return buildLocCard(l,gi,ii)+editBtn;
   if(locked)return `<div style="position:relative;"><div class="lcard gc" style="cursor:pointer;" onclick="onPwItem(${gi},${ii},'link')">&#128274; ${escHtml(l.title)}</div>${editBtn}</div>`;
@@ -1378,36 +1349,13 @@ function buildAlbumCard(l,i){
   let coverHtml;
   if(l.coverUrl){
     /* eager loading + decoding async for instant cover display on QR scan */
-    coverHtml=`<div class="album-cover-wrap" onclick="openAlbumViewer(${i})"><img class="album-cover-img" src="${cldOpt(l.coverUrl,'w_700,h_394,c_fill,f_auto,q_auto:70')}" loading="eager" decoding="async" fetchpriority="high" alt="" onload="this.classList.add('loaded')"><div class="album-cover-overlay"><div class="album-tap-badge">TAP HERE</div><div style="font-size:.68rem;color:rgba(255,255,255,.5);letter-spacing:1px;">${items.length} ITEMS</div></div></div>`;
-    /* Preload album item thumbnails in background for instant open */
-    if(window._pub&&items.length>0){
-      setTimeout(()=>{
-        items.slice(0,5).forEach(it=>{
-          if(it.type==='image'&&it.url){const pi=new Image();pi.src=it.url;}
-        });
-      },300);
-    }
+    coverHtml=`<div class="album-cover-wrap" onclick="openAlbumViewer(${i})"><img class="album-cover-img" src="${l.coverUrl}" loading="eager" decoding="async" fetchpriority="high" alt="" onload="this.classList.add('loaded')"><div class="album-cover-overlay"><div class="album-tap-badge">TAP HERE</div><div style="font-size:.68rem;color:rgba(255,255,255,.5);letter-spacing:1px;">${items.length} ITEMS</div></div></div>`;
   }else{
     coverHtml=`<div class="album-no-cover" onclick="openAlbumViewer(${i})"><div style="text-align:center;color:#333;"><div style="font-size:36px;margin-bottom:8px;">&#128193;</div><div style="font-size:.78rem;letter-spacing:1px;">NO COVER &mdash; TAP TO OPEN</div><div style="font-size:.68rem;margin-top:4px;color:#2a2a2a;">${items.length} items</div></div></div>`;
   }
   return `<div class="album-card">${coverHtml}<div class="album-card-footer"><span class="album-card-name">&#128193; ${escHtml(l.name||'Album')}</span>${addBtn}${editBtn}</div></div>`;
 }
 
-/* ── Cloudinary URL optimizer: insert transformation after /upload/ ──
-   Falls back to original URL for non-Cloudinary (base64 or external) sources. ── */
-function cldOpt(url,t){
-  if(!url||url.startsWith('data:')||!url.includes('res.cloudinary.com'))return url;
-  return url.replace('/upload/','/upload/'+t+'/');
-}
-/* Play inline video card — hides overlay and plays */
-window.playMcoverVideo=function(id){
-  const vid=document.getElementById(id);
-  const ov=document.getElementById(id+'_ov');
-  if(!vid)return;
-  if(ov)ov.style.display='none';
-  vid.controls=true;
-  vid.play().catch(()=>{if(ov)ov.style.display='flex';});
-};
 function renderLinks(){
   const sec=document.getElementById('lsec');sec.innerHTML='';
   const linkStyle=window.S?.linkStyle||'list';let gridWrap=null;
@@ -1638,7 +1586,7 @@ window.selectEditAlbTheme=function(t){_editAlbTheme=t;['snap','carousel','floati
 window.onAlbCoverPick=function(inp,prevId){
   const f=inp.files[0];inp.value='';if(!f)return;
   showProcessing('Uploading cover\u2026','');
-  resizeImgToBlob(f,800,.82)
+  resizeImgToBlob(f,900,.85)
     .then(blob=>uploadToStorage(blob,window._uid,p=>setProcessingProgress(p,'Cover: '+p+'%'),'image/jpeg'))
     .then(result=>{
       if(prevId==='alb-cover-prev')_pendAlbCover=result.url;
@@ -1660,7 +1608,7 @@ window.onImgPick=inp=>{
   }
   const f=files[0];
   showProcessing('Uploading image\u2026','');
-  resizeImgToBlob(f,800,.82)
+  resizeImgToBlob(f,900,.85)
     .then(blob=>uploadToStorage(blob,window._uid,p=>setProcessingProgress(p,'Uploading: '+p+'%'),'image/jpeg'))
     .then(result=>{
       pendMedia={type:'image',url:result.url,storagePath:result.storagePath};
@@ -1700,7 +1648,7 @@ function onAlbumMediaPick_direct(filesIn){
   const oversized=files.filter(f=>f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024);
   if(oversized.length){toast(oversized.length+' video(s) exceed '+_MAX_VIDEO_MB+'MB — skipped','e');files=files.filter(f=>!(f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024));}
   if(!files.length)return;
-  if(getProfileBytes()>=_MAX_BYTES){toast('Profile at 50MB limit — remove some media first','e');return;}
+  if(getProfileBytes()>=_MAX_BYTES){toast('Profile at 100MB limit — remove some media first','e');return;}
   showProcessing('Adding '+files.length+' file(s)\u2026','Do not close or navigate away');
   processMediaFiles(
     files,
@@ -1802,7 +1750,7 @@ async function processMediaFiles(files,onItem,onDone){
       let result;
       if(f.type.startsWith('image/')){
         /* Resize → Blob (no base64 in memory) → upload to Storage */
-        const blob=await resizeImgToBlob(f,800,.82);
+        const blob=await resizeImgToBlob(f,1200,.85);
         result=await uploadToStorage(blob,window._uid,
           p=>setProcessingProgress(basePct+Math.round(p*(90/total)/100),'Image '+(i+1)+': '+p+'%'),
           'image/jpeg');
@@ -1897,7 +1845,7 @@ function renderAvEditBar(){
   items.forEach((it,idx)=>{
     const th=document.createElement('div');th.className='av-edit-thumb';th.draggable=true;th.dataset.idx=idx;
     if(it.type==='video'){th.innerHTML=`<video src="${it.url}" preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;" muted></video>`;}
-    else{const tSrc=cldOpt(it.url,'w_160,h_160,c_fill,f_auto,q_auto:60');th.innerHTML=`<img src="${tSrc}" loading="lazy" alt="">`;}
+    else{th.innerHTML=`<img src="${it.url}" loading="lazy" alt="">`;}
     /* delete — removes immediately from memory; saved on Done; cleans up Storage file */
     const del=document.createElement('div');del.className='av-edit-del';del.innerHTML='&#x2715;';del.onclick=e=>{
       e.stopPropagation();
@@ -1934,7 +1882,7 @@ window.onAvAddPick=function(inp){
   const oversized=files.filter(f=>f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024);
   if(oversized.length){toast(oversized.length+' video(s) over '+_MAX_VIDEO_MB+'MB — skipped','e');files=files.filter(f=>!(f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024));}
   if(!files.length)return;
-  if(getProfileBytes()>=_MAX_BYTES){toast('Profile at 50MB limit — remove some media first','e');return;}
+  if(getProfileBytes()>=_MAX_BYTES){toast('Profile at 100MB limit — remove some media first','e');return;}
   showProcessing('Adding '+files.length+' file(s)\u2026','Do not close or navigate away');
   processMediaFiles(
     files,
@@ -1951,7 +1899,7 @@ window.onAvAddPick=function(inp){
 
 function mediaEl(it,style,eager){
   /* eager=true forces immediate load — needed for 3D carousel on Safari */
-  if(it.type==='video')return `<video src="${it.url}" playsinline preload="metadata" ${style} ${eager?'autoplay':''} muted loop></video>`;
+  if(it.type==='video')return `<video src="${it.url}" playsinline preload="${eager?'metadata':'none'}" ${style} ${eager?'autoplay':''} muted loop></video>`;
   return `<img src="${it.url}" loading="${eager?'eager':'lazy'}" decoding="${eager?'async':'auto'}" alt="" ${style}>`;
 }
 
@@ -1982,7 +1930,7 @@ function buildSnap(items,cont){
     if(it.type==='video'){
       return `<div class="snap-item">${mediaEl(it,'style="width:100%;max-height:60vh;object-fit:cover;display:block;"',idx<2)}</div>`;
     }
-    if(idx<5){
+    if(idx<3){
       /* Load immediately */
       return `<div class="snap-item"><img src="${it.url}" loading="eager" decoding="async" style="width:100%;max-height:60vh;object-fit:cover;display:block;" alt=""></div>`;
     }
@@ -2006,7 +1954,7 @@ function buildSnap(items,cont){
           io.unobserve(el);
         }
       });
-    },{rootMargin:'800px'});/* start loading 800px before visible */
+    },{rootMargin:'400px'});/* start loading 400px before visible */
     lazies.forEach(el=>io.observe(el));
   }else{
     /* Fallback: load all */
@@ -2162,7 +2110,7 @@ window.setLinkStyle=function(style){if(!window.S)return;window.S.linkStyle=style
 window.onBgPick=inp=>{
   const f=inp.files[0];inp.value='';if(!f)return;
   showProcessing('Uploading background\u2026','');
-  resizeImgToBlob(f,800,.82)
+  resizeImgToBlob(f,1400,.82)
     .then(blob=>uploadToStorage(blob,window._uid,p=>setProcessingProgress(p,'Background: '+p+'%'),'image/jpeg'))
     .then(result=>{
       window.S.bgImage=result.url;window.S.bgImagePath=result.storagePath;
