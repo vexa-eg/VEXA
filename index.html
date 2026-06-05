@@ -831,6 +831,9 @@ const _MAX_BYTES=30*1024*1024;
 const _MAX_VIDEO_MB=20;
 const _WARN_BYTES=27*1024*1024;
 const _SAVE_BATCH=15;
+/* Pending bytes: bytes of uploaded-but-not-yet-confirmed media (before Add is clicked).
+   Added to meter instantly so user sees the impact before confirming. */
+let _pendingBytes=0;
 
 /* ── Memory-safe profile size: sums actual media bytes (compressed imgs + raw videos) ──
    mediaBytes = compressed blob size for images, original file size for videos.
@@ -983,14 +986,15 @@ function updateStorageMeter(){
   const val=document.getElementById('storage-meter-val');
   const hint=document.getElementById('storage-bar-hint');
   if(!fill||!val)return;
-  const bytes=getProfileBytes();
+  /* Add _pendingBytes so meter updates instantly after upload, before Add is clicked */
+  const bytes=getProfileBytes()+_pendingBytes;
   const mb=(bytes/(1024*1024));
   const pct=Math.min(100,(bytes/_MAX_BYTES)*100);
   fill.style.width=pct+'%';
   fill.style.background=pct>=95?'#f44':pct>=80?'#f90':pct>=60?'#fc0':'#4cf';
-  val.innerText=mb.toFixed(1)+' MB / 30 MB';
+  val.innerText=mb.toFixed(1)+' MB / 30 MB'+((_pendingBytes>0)?' ⏳':'');
   val.style.color=pct>=95?'#f66':pct>=80?'#f90':'#666';
-  if(hint){hint.innerText=pct>=95?'⚠ Profile nearly full!':pct>=80?'Getting close to the limit':pct>=50?'Moderate usage · Plenty of space left':'Plenty of space left';}
+  if(hint){hint.innerText=pct>=95?'\u26a0 Profile nearly full!':pct>=80?'Getting close to the limit':pct>=50?'Moderate usage \xb7 Plenty of space left':'Plenty of space left';}
 }
 function checkStorageBeforeAdd(extraBytes){
   /* ── TEST MODE: blocks disabled — re-enable after testing ── */
@@ -1647,15 +1651,20 @@ window.onImgPick=inp=>{
     onAlbumMediaPick_direct(files);return;
   }
   const f=files[0];
-  showProcessing('Uploading image\u2026','');
+  const origMb=(f.size/(1024*1024)).toFixed(1);
+  const estMb=(f.size*0.85/(1024*1024)).toFixed(1);
+  toast('\ud83d\uddbc\ufe0f Image: '+origMb+' MB \u2192 ~'+estMb+' MB counted','s');
+  showProcessing('Uploading image ('+origMb+' MB)\u2026','');
   resizeImgToBlob(f,900,.85)
     .then(blob=>uploadToStorage(blob,window._uid,p=>setProcessingProgress(p,'Uploading: '+p+'%'),'image/jpeg'))
     .then(result=>{
-      /* 85% of original — compressed but not the exact blob size */
-      pendMedia={type:'image',url:result.url,storagePath:result.storagePath,mediaBytes:Math.round(f.size*0.85)};
+      const mBytes=Math.round(f.size*0.85);
+      pendMedia={type:'image',url:result.url,storagePath:result.storagePath,mediaBytes:mBytes};
+      _pendingBytes=mBytes;
+      updateStorageMeter();
       const ip=document.getElementById('imgprev');if(ip){ip.src=result.url;ip.style.display='block';}
       const ib=document.getElementById('imgbox');if(ib)ib.style.display='none';
-      hideProcessing();toast('Image ready \u2713','s');
+      hideProcessing();toast('Image ready \u2713 ('+estMb+' MB)','s');
     })
     .catch(err=>{hideProcessing();toast('Upload failed: '+err.message,'e');});
 };
@@ -1665,15 +1674,23 @@ window.onVidPick=inp=>{
     onAlbumMediaPick_direct(files);return;
   }
   const f=files[0];
-  if(f.size>_MAX_VIDEO_MB*1024*1024){toast('Video too large \u2014 max '+_MAX_VIDEO_MB+'MB','e');return;}
-  showProcessing('Uploading video\u2026','Please wait \u2014 do not close the app');
+  const mb=(f.size/(1024*1024)).toFixed(1);
+  /* Hard block: over the 20MB video limit */
+  if(f.size>_MAX_VIDEO_MB*1024*1024){
+    toast('\u274c Video is '+mb+' MB \u2014 max allowed is '+_MAX_VIDEO_MB+' MB','e');
+    return;
+  }
+  toast('\ud83c\udfa5 Video: '+mb+' MB \u2014 uploading\u2026','s');
+  showProcessing('Uploading video ('+mb+' MB)\u2026','Please wait \u2014 do not close the app');
   uploadToStorage(f,window._uid,p=>{setProcessingProgress(p,'Uploading: '+p+'%');},f.type)
     .then(result=>{
       pendMedia={type:'video',url:result.url,storagePath:result.storagePath,mediaBytes:f.size};
+      _pendingBytes=f.size;
+      updateStorageMeter();
       const vp=document.getElementById('vidprev');
       if(vp){vp.src=result.url;vp.style.display='block';}
       const vb=document.getElementById('vidbox');if(vb)vb.style.display='none';
-      hideProcessing();toast('Video ready \u2713','s');
+      hideProcessing();toast('Video ready \u2713 ('+mb+' MB)','s');
     })
     .catch(err=>{hideProcessing();toast('Upload failed: '+err.message,'e');});
 };
@@ -1699,10 +1716,16 @@ function onAlbumMediaPick_direct(filesIn){
   const gi=addToGrpIdx>=0?addToGrpIdx:-1;if(gi<0||!window.S.links[gi]||window.S.links[gi].type!=='album'){toast('Select an album first','e');return;}
   const alb=window.S.links[gi];if(!alb.items)alb.items=[];
   if(!files.length)return;
-  /* ── Size checks ── */
+  /* ── Video hard block: reject any video over 20MB before uploading ── */
   const oversized=files.filter(f=>f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024);
-  if(oversized.length){toast(oversized.length+' video(s) exceed '+_MAX_VIDEO_MB+'MB — skipped','e');files=files.filter(f=>!(f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024));}
+  if(oversized.length){
+    oversized.forEach(f=>{const mb=(f.size/(1024*1024)).toFixed(1);toast('\u274c "'+f.name.slice(0,20)+'" is '+mb+' MB \u2014 max '+_MAX_VIDEO_MB+' MB for videos','e');});
+    files=files.filter(f=>!(f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024));
+  }
   if(!files.length)return;
+  /* ── Show estimated total size before uploading ── */
+  const totalEst=files.reduce((s,f)=>s+(f.type.startsWith('video/')?f.size:f.size*0.85),0);
+  toast('\u2601\ufe0f Uploading '+files.length+' file(s) \u2014 ~'+(totalEst/(1024*1024)).toFixed(1)+' MB will be counted','s');
   /* ── TEST MODE: storage block disabled ── */
   showProcessing('Adding '+files.length+' file(s)\u2026','Do not close or navigate away');
   processMediaFiles(
@@ -1721,6 +1744,7 @@ window.onAlbumMediaPick=inp=>{
 
 /* ===== ADD ITEM ===== */
 function pushItem(item){
+  _pendingBytes=0; /* item confirmed → clear preview pending bytes */
   const gi=_pendLocGrpIdx>=0?_pendLocGrpIdx:addToGrpIdx;
   if(gi>=0){if(!window.S.links[gi].items)window.S.links[gi].items=[];window.S.links[gi].items.push(item);}
   else window.S.links.push(item);
@@ -1943,10 +1967,16 @@ function renderAvEditBar(){
 window.onAvAddPick=function(inp){
   let files=Array.from(inp.files);inp.value='';if(!files.length)return;
   const alb=window.S.links[_albumGi];if(!alb)return;if(!alb.items)alb.items=[];
-  /* ── Size checks ── */
+  /* ── Video hard block: reject any video over 20MB before uploading ── */
   const oversized=files.filter(f=>f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024);
-  if(oversized.length){toast(oversized.length+' video(s) over '+_MAX_VIDEO_MB+'MB — skipped','e');files=files.filter(f=>!(f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024));}
+  if(oversized.length){
+    oversized.forEach(f=>{const mb=(f.size/(1024*1024)).toFixed(1);toast('\u274c "'+f.name.slice(0,20)+'" is '+mb+' MB \u2014 max '+_MAX_VIDEO_MB+' MB for videos','e');});
+    files=files.filter(f=>!(f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024));
+  }
   if(!files.length)return;
+  /* ── Show estimated total size before uploading ── */
+  const totalEst=files.reduce((s,f)=>s+(f.type.startsWith('video/')?f.size:f.size*0.85),0);
+  toast('\u2601\ufe0f Uploading '+files.length+' file(s) \u2014 ~'+(totalEst/(1024*1024)).toFixed(1)+' MB will be counted','s');
   /* ── TEST MODE: storage block disabled ── */
   showProcessing('Adding '+files.length+' file(s)\u2026','Do not close or navigate away');
   processMediaFiles(
