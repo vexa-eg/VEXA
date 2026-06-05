@@ -832,19 +832,31 @@ const _MAX_VIDEO_MB=20;
 const _WARN_BYTES=27*1024*1024;
 const _SAVE_BATCH=15;
 
-/* ── Memory-safe profile size: sums string lengths WITHOUT JSON.stringify copies ── */
+/* ── Memory-safe profile size: sums actual media bytes (compressed imgs + raw videos) ──
+   mediaBytes = compressed blob size for images, original file size for videos.
+   coverBytes = compressed cover image size for albums / photo buttons.
+   bgBytes    = compressed background image size.
+   Everything else (metadata, URLs) adds only string lengths — negligible. ── */
 function getProfileBytes(){
   if(!window.S)return 0;
   let total=0;
   try{total+=JSON.stringify({...window.S,links:[]}).length;}catch(_){return 0;}
+  /* Background image actual size */
+  if(window.S.bgBytes)total+=window.S.bgBytes;
   (window.S.links||[]).forEach(l=>{
     try{
       total+=JSON.stringify({...l,items:undefined,url:undefined,coverUrl:undefined}).length;
       if(l.url)total+=l.url.length;
       if(l.coverUrl)total+=l.coverUrl.length;
+      /* Actual media bytes for standalone image/video items */
+      if(l.mediaBytes)total+=l.mediaBytes;
+      /* Actual cover bytes for albums and photo buttons */
+      if(l.coverBytes)total+=l.coverBytes;
       (l.items||[]).forEach(item=>{
         total+=JSON.stringify({...item,url:undefined}).length;
         if(item.url)total+=item.url.length;
+        /* Actual media bytes: compressed blob for images, raw size for videos */
+        if(item.mediaBytes)total+=item.mediaBytes;
       });
     }catch(_){}
   });
@@ -981,11 +993,10 @@ function updateStorageMeter(){
   if(hint){hint.innerText=pct>=95?'⚠ Profile nearly full!':pct>=80?'Getting close to the limit':pct>=50?'Moderate usage · Plenty of space left':'Plenty of space left';}
 }
 function checkStorageBeforeAdd(extraBytes){
+  /* ── TEST MODE: blocks disabled — re-enable after testing ── */
   const cur=getProfileBytes();
-  if(cur>=_MAX_BYTES){toast('Profile at 30MB limit — remove some media first','e');return false;}
-  if(cur+extraBytes>_MAX_BYTES){const rem=Math.max(0,(_MAX_BYTES-cur)/(1024*1024));toast('Not enough space — only '+rem.toFixed(1)+'MB remaining','e');return false;}
-  if(cur>_WARN_BYTES){const mb=(cur/(1024*1024));toast('Profile is '+mb.toFixed(1)+'MB / 30MB — almost full!','e');}
-  return true;
+  if(cur>_WARN_BYTES){const mb=(cur/(1024*1024)).toFixed(1);toast('\u26a0 '+mb+'MB / 30MB \u2014 almost full','e');}
+  return true; /* Always allow for now */
 }
 const _FBSave=async(uid,state)=>{
   function strip(links){return(links||[]).map(l=>{const c={...l};delete c._unlocked;if(c.items)c.items=strip(c.items);return c;});}
@@ -993,8 +1004,9 @@ const _FBSave=async(uid,state)=>{
   const s={...state,links:strip(state.links||[])};
   /* Use fast getProfileBytes() instead of new Blob(JSON.stringify()) — no large copy */
   const approxBytes=getProfileBytes();
-  if(approxBytes>_MAX_BYTES){const mb=Math.round(approxBytes/(1024*1024));toast('Profile too large ('+mb+'MB) — max 30MB. Remove some media.','e');return;}
-  if(approxBytes>_WARN_BYTES){const mb=(approxBytes/(1024*1024)).toFixed(1);toast('\u26a0 Profile: '+mb+'MB / 30MB \u2014 nearing limit!','e');}  return Promise.all([_db.ref('users/'+uid).set(s),_db.ref('pub/'+s.publicId).set(s)]).catch(e=>{console.warn(e);toast('Save failed — check connection','e');});
+  /* ── TEST MODE: size block disabled — re-enable after testing ── */
+  if(approxBytes>_WARN_BYTES){const mb=(approxBytes/(1024*1024)).toFixed(1);toast('\u26a0 '+mb+'MB / 30MB \u2014 nearing limit','e');}
+  return Promise.all([_db.ref('users/'+uid).set(s),_db.ref('pub/'+s.publicId).set(s)]).catch(e=>{console.warn(e);toast('Save failed — check connection','e');});
 };
 const _FBLoad=async uid=>{const s=await _db.ref('users/'+uid).once('value');return s.exists()?s.val():null;};
 const _FBLoadPub=async pid=>{const s=await _db.ref('pub/'+pid).once('value');return s.exists()?s.val():null;};
@@ -1138,9 +1150,9 @@ let _confirmCb=null,_saveTimer=null,_pwCb=null,_liveWatchId=null;
 let _pendLocLabel='',_pendLocPw=null,_pendLocGrpIdx=-1;
 let _crop={scale:1,minScale:1,maxScale:4,ox:0,oy:0,dragging:false,lastX:0,lastY:0,stageSize:280};
 let _pinchStart=null,_selectedAlbTheme='snap',_editAlbTheme='snap';
-let _pendAlbCover=null,_editAlbCover=null;
+let _pendAlbCover=null,_editAlbCover=null,_pendAlbCoverBytes=0,_editAlbCoverBytes=0;
 let _carIdx=0,_floatIdx=0,_flipIdx=0,_carN=1,_carRadius=140;
-let _pendPhotoBtnImg=null,_egGrpStyle='list',_newGrpStyle='list';
+let _pendPhotoBtnImg=null,_pendPhotoBtnBytes=0,_egGrpStyle='list',_newGrpStyle='list';
 
 function hideLs(){const l=document.getElementById('ls');l.classList.add('out');setTimeout(()=>l.classList.add('hidden'),300);const sk=document.getElementById('pub-skeleton');if(sk)sk.classList.remove('on');}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -1615,8 +1627,10 @@ window.onAlbCoverPick=function(inp,prevId){
   resizeImgToBlob(f,900,.85)
     .then(blob=>uploadToStorage(blob,window._uid,p=>setProcessingProgress(p,'Cover: '+p+'%'),'image/jpeg'))
     .then(result=>{
-      if(prevId==='alb-cover-prev')_pendAlbCover=result.url;
-      else _editAlbCover=result.url;
+      /* 85% of original — compressed but not exact blob size */
+      const covBytes=Math.round(f.size*0.85);
+      if(prevId==='alb-cover-prev'){_pendAlbCover=result.url;_pendAlbCoverBytes=covBytes;}
+      else{_editAlbCover=result.url;_editAlbCoverBytes=covBytes;}
       const prev=document.getElementById(prevId);
       if(prev){prev.src=result.url;prev.style.display='block';}
       const box=document.getElementById(prevId==='alb-cover-prev'?'alb-cover-box':'alb-cover-box2');
@@ -1637,7 +1651,8 @@ window.onImgPick=inp=>{
   resizeImgToBlob(f,900,.85)
     .then(blob=>uploadToStorage(blob,window._uid,p=>setProcessingProgress(p,'Uploading: '+p+'%'),'image/jpeg'))
     .then(result=>{
-      pendMedia={type:'image',url:result.url,storagePath:result.storagePath};
+      /* 85% of original — compressed but not the exact blob size */
+      pendMedia={type:'image',url:result.url,storagePath:result.storagePath,mediaBytes:Math.round(f.size*0.85)};
       const ip=document.getElementById('imgprev');if(ip){ip.src=result.url;ip.style.display='block';}
       const ib=document.getElementById('imgbox');if(ib)ib.style.display='none';
       hideProcessing();toast('Image ready \u2713','s');
@@ -1654,7 +1669,7 @@ window.onVidPick=inp=>{
   showProcessing('Uploading video\u2026','Please wait \u2014 do not close the app');
   uploadToStorage(f,window._uid,p=>{setProcessingProgress(p,'Uploading: '+p+'%');},f.type)
     .then(result=>{
-      pendMedia={type:'video',url:result.url,storagePath:result.storagePath};
+      pendMedia={type:'video',url:result.url,storagePath:result.storagePath,mediaBytes:f.size};
       const vp=document.getElementById('vidprev');
       if(vp){vp.src=result.url;vp.style.display='block';}
       const vb=document.getElementById('vidbox');if(vb)vb.style.display='none';
@@ -1671,6 +1686,7 @@ window.onPhotoBtnPick=inp=>{
     .then(blob=>uploadToStorage(blob,window._uid,p=>setProcessingProgress(p,'Cover: '+p+'%'),'image/jpeg'))
     .then(result=>{
       _pendPhotoBtnImg=result.url;
+      _pendPhotoBtnBytes=Math.round(f.size*0.85);
       const prev=document.getElementById('photobtn-prev');
       if(prev){prev.src=result.url;prev.style.display='block';}
       const box=document.getElementById('photobtnbox');if(box)box.style.display='none';
@@ -1687,7 +1703,7 @@ function onAlbumMediaPick_direct(filesIn){
   const oversized=files.filter(f=>f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024);
   if(oversized.length){toast(oversized.length+' video(s) exceed '+_MAX_VIDEO_MB+'MB — skipped','e');files=files.filter(f=>!(f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024));}
   if(!files.length)return;
-  if(getProfileBytes()>=_MAX_BYTES){toast('Profile at 30MB limit — remove some media first','e');return;}
+  /* ── TEST MODE: storage block disabled ── */
   showProcessing('Adding '+files.length+' file(s)\u2026','Do not close or navigate away');
   processMediaFiles(
     files,
@@ -1716,9 +1732,9 @@ window.addItem=function(){
   let item=null;
   if(curTab==='link'){const t=document.getElementById('ltitle').value.trim(),r=document.getElementById('lurl').value.trim();if(!t||!r){toast('Fill in name and URL','e');return;}const pwOn=document.getElementById('link-pw-on').checked,pw=pwOn?document.getElementById('link-pw').value.trim():null;item={type:'link',title:t,url:smartPrefix(t,r),password:pw||null};}
   else if(curTab==='text'){const c=document.getElementById('text-content').value.trim();if(!c){toast('Enter some text','e');return;}const pwOn=document.getElementById('text-pw-on').checked,pw=pwOn?document.getElementById('text-pw').value.trim():null;item={type:'text',content:c,password:pw||null};}
-  else if(curTab==='photobtn'){const t=document.getElementById('photobtn-title').value.trim(),r=document.getElementById('photobtn-url').value.trim();if(!t){toast('Enter a button label','e');return;}if(!r){toast('Enter a destination URL','e');return;}if(!_pendPhotoBtnImg){toast('Select a cover image first','e');return;}const pbPwOn=document.getElementById('photobtn-pw-on').checked,pbPw=pbPwOn?document.getElementById('photobtn-pw').value.trim()||null:null;const pbStyle=(_pendPbStyle==='small')?'small':'full';item={type:'photobtn',title:t,url:smartPrefix(t,r),coverUrl:_pendPhotoBtnImg,pbStyle,password:pbPw||null};_pendPhotoBtnImg=null;}
+  else if(curTab==='photobtn'){const t=document.getElementById('photobtn-title').value.trim(),r=document.getElementById('photobtn-url').value.trim();if(!t){toast('Enter a button label','e');return;}if(!r){toast('Enter a destination URL','e');return;}if(!_pendPhotoBtnImg){toast('Select a cover image first','e');return;}const pbPwOn=document.getElementById('photobtn-pw-on').checked,pbPw=pbPwOn?document.getElementById('photobtn-pw').value.trim()||null:null;const pbStyle=(_pendPbStyle==='small')?'small':'full';item={type:'photobtn',title:t,url:smartPrefix(t,r),coverUrl:_pendPhotoBtnImg,coverBytes:_pendPhotoBtnBytes||0,pbStyle,password:pbPw||null};_pendPhotoBtnImg=null;_pendPhotoBtnBytes=0;}
   else if(curTab==='group'){const name=document.getElementById('grp-name').value.trim();if(!name){toast('Enter group name','e');return;}const grpPwOn=document.getElementById('grp-pw-on').checked,grpPw=grpPwOn?document.getElementById('grp-pw').value.trim()||null:null;item={type:'group',name,linkStyle:_newGrpStyle,hbg:document.getElementById('grp-hbg').value,htxt:document.getElementById('grp-htxt').value,gcbg:document.getElementById('grp-cbg').value,iconColor:document.getElementById('grp-icon-color').value,iconBg:document.getElementById('grp-icon-bg').value,labelColor:document.getElementById('grp-label-color').value,password:grpPw,items:[]};}
-  else if(curTab==='album'){const name=document.getElementById('alb-name').value.trim();if(!name){toast('Enter album name','e');return;}const albPwOn=document.getElementById('alb-pw-on').checked,albPw=albPwOn?document.getElementById('alb-pw').value.trim()||null:null;item={type:'album',name,albumTheme:_selectedAlbTheme,coverUrl:_pendAlbCover||null,password:albPw||null,items:[]};_pendAlbCover=null;}
+  else if(curTab==='album'){const name=document.getElementById('alb-name').value.trim();if(!name){toast('Enter album name','e');return;}const albPwOn=document.getElementById('alb-pw-on').checked,albPw=albPwOn?document.getElementById('alb-pw').value.trim()||null:null;item={type:'album',name,albumTheme:_selectedAlbTheme,coverUrl:_pendAlbCover||null,coverBytes:_pendAlbCoverBytes||0,password:albPw||null,items:[]};_pendAlbCover=null;_pendAlbCoverBytes=0;}
   else if(pendMedia){const isImg=curTab==='image';const k=isImg?'img':'vid';const titleEl=document.getElementById(k+'-title');const userTitle=titleEl?titleEl.value.trim():'';const pwOn=document.getElementById(k+'-pw-on').checked,pw=pwOn?document.getElementById(k+'-pw').value.trim():null;item={...pendMedia,title:userTitle||(isImg?'Photo':'Video'),password:pw||null};}
   else{toast('Select media first','e');return;}
   pushItem(item);
@@ -1766,7 +1782,7 @@ window.openEditAlbum=gi=>{
   const hasPw=!!a.password;document.getElementById('ealb-pw-on').checked=hasPw;togglePwInput('ealb-pw-field',hasPw);document.getElementById('ealb-pw').value=a.password||'';
   document.getElementById('ealbmod').classList.remove('hidden');
 };
-window.saveAlbumEdit=function(){const a=window.S.links[_albumGi];if(!a)return;a.name=document.getElementById('ealb-name').value.trim()||a.name;a.albumTheme=_editAlbTheme;if(_editAlbCover)a.coverUrl=_editAlbCover;const pwOn=document.getElementById('ealb-pw-on').checked,pw=document.getElementById('ealb-pw').value.trim();a.password=pwOn&&pw?pw:null;save();renderLinks();closeModals();toast('Updated \u2713','s');_editAlbCover=null;};
+window.saveAlbumEdit=function(){const a=window.S.links[_albumGi];if(!a)return;a.name=document.getElementById('ealb-name').value.trim()||a.name;a.albumTheme=_editAlbTheme;if(_editAlbCover){a.coverUrl=_editAlbCover;a.coverBytes=_editAlbCoverBytes||0;}const pwOn=document.getElementById('ealb-pw-on').checked,pw=document.getElementById('ealb-pw').value.trim();a.password=pwOn&&pw?pw:null;save();renderLinks();closeModals();toast('Updated \u2713','s');_editAlbCover=null;_editAlbCoverBytes=0;};
 
 let _avEditMode=false;
 /* ── Processing overlay helpers — prevents browser from appearing frozen ── */
@@ -1802,13 +1818,15 @@ async function processMediaFiles(files,onItem,onDone){
 
     const results=await Promise.allSettled(batch.map(async p=>{
       const result=await uploadToStorage(p.blob,window._uid,null,p.mime);
-      return{type:p.isVideo?'video':'image',url:result.url,storagePath:result.storagePath};
+      /* Image: 85% of original size (compressed but not exact blob) | Video: 100% raw size */
+      const mediaBytes=p.isVideo?p.orig.size:Math.round(p.orig.size*0.85);
+      return{type:p.isVideo?'video':'image',url:result.url,storagePath:result.storagePath,mediaBytes};
     }));
 
     results.forEach(r=>{
       if(r.status==='fulfilled'){
         onItem({type:r.value.type,url:r.value.url,storagePath:r.value.storagePath,
-          title:r.value.type==='video'?'Video':'Photo'});
+          title:r.value.type==='video'?'Video':'Photo',mediaBytes:r.value.mediaBytes});
         added++;
       }else{
         console.warn('Upload failed:',r.reason);
@@ -1929,7 +1947,7 @@ window.onAvAddPick=function(inp){
   const oversized=files.filter(f=>f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024);
   if(oversized.length){toast(oversized.length+' video(s) over '+_MAX_VIDEO_MB+'MB — skipped','e');files=files.filter(f=>!(f.type.startsWith('video/')&&f.size>_MAX_VIDEO_MB*1024*1024));}
   if(!files.length)return;
-  if(getProfileBytes()>=_MAX_BYTES){toast('Profile at 30MB limit — remove some media first','e');return;}
+  /* ── TEST MODE: storage block disabled ── */
   showProcessing('Adding '+files.length+' file(s)\u2026','Do not close or navigate away');
   processMediaFiles(
     files,
